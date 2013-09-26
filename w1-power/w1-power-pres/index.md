@@ -1,8 +1,8 @@
 ---
 title       : Анализ мощности
-subtitle    : 
+subtitle    : Математические методы в зоологии - на R, осень 2013
 author      : Марина Варфоломеева
-job         : 
+job         : Каф. Зоологии беспозвоночных, СПбГУ
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : idea      # 
