@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Анализ мощности</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Анализ мощности">
+  <meta name="author" content="Марина Варфоломеева">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/idea.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+<link rel="stylesheet" href = "assets/css/z.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Анализ мощности</h1>
+        <h2></h2>
+        <p>Марина Варфоломеева<br/></p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h1>Экономим силы с помощью анализа мощности</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Статистические ошибки при проверке гипотез</li>
+<li>Мощность статистического теста</li>
+<li><em>A priori</em> анализ мощности</li>
+<li>Оценка величины эффекта</li>
+<li><em>Post hoc</em> анализ мощности</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="learning" id="slide-2" style="background:;">
+  <hgroup>
+    <h1>Вы сможете</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>дать определение ошибок I и II рода, и графически изобразить их отношение к мощности теста</li>
+<li>оценивать величину эффекта и необходимый объем выборки по данным пилотного исследования</li>
+<li>загружать данные из .xls в R</li>
+<li>строить гистограммы и боксплоты с помощью <code>ggplot2</code></li>
+<li>сравнивать средние значения при помощи t-критерия, интерпретировать и описывать результаты</li>
+<li>расчитывать фактическую мощность теста</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-3" style="background:;">
+  <hgroup>
+    <h1>Статистические ошибки при проверке гипотез</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h1>Типы ошибок при проверке гипотез</h1>
+  </hgroup>
+  <article>
+    <table>
+<col width = "16%">
+</col>
+<col width = "26%">
+</col>
+<col width = "26%">
+</col>
+<tbody>
+<tr class = "odd">
+<td class = "vheaver">
+</td>
+<td class = "vheaver">
+H0 == TRUE
+</td>
+<td class = "vheaver">
+H0 == FALSE
+</td>
+</tr>
+<tr class = "even">
+<td class = "hheader">
+Отклонить<br />H0
+</td>
+<td>
+Ошибка I рода<br />Ложно-положительный результат
+</p>
+</td>
+<td>
+Верно<br />Положительный результат
+</td>
+</tr>
+<tr class = "odd">
+<td class = "hheader">
+Сохранить<br />H0
+</td>
+<td>
+Верно<br />Отрицательный результат
+</td>
+<td>
+Ошибка II рода<br />Ложно-отрицательный результат
+</td>
+</tr>
+</tbody>
+</table>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h1>Вероятности гипотез</h1>
+  </hgroup>
+  <article>
+    <p><br />
+<img src="figure/power_curves.png" title="plot of chunk power_curves" alt="plot of chunk power_curves" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h1>Ошибки I рода</h1>
+  </hgroup>
+  <article>
+    <p>$H _0$ верна, но отвергнута, найдены различия - ложно-положительный результат</p>
+
+<p><img src="figure/power_alpha.png" title="plot of chunk power_alpha" alt="plot of chunk power_alpha" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h1>Ошибки II рода</h1>
+  </hgroup>
+  <article>
+    <p>$H _0$ не верна и сохранена, не найдены различия - ложно-отрицательный результат</p>
+
+<p><img src="figure/power_beta.png" title="plot of chunk power_beta" alt="plot of chunk power_beta" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h1>Мощность теста</h1>
+  </hgroup>
+  <article>
+    <p>способность выявлять различия </p>
+
+<p><img src="figure/unnamed-chunk-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" style="display: block; margin: auto;" /></p>
+
+<p>$$Power = 1 – \beta$$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h1>Анализ мощности</h1>
+  </hgroup>
+  <article>
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><center><em>A priori</em></center></p>
+
+<ul>
+<li>какой нужен объем выборки, чтобы найти различия с разумной долей уверенности?</li>
+<li>различия какой величины мы можем найти, если известен объем выборки?</li>
+</ul>
+
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><center><em>Post hoc</em></center></p>
+
+<ul>
+<li>смогли бы мы найти различия при помощи нашего эксперимента ($\alpha$, $n$), если бы величина эффекта была $X$?</li>
+</ul>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-10" style="background:;">
+  <hgroup>
+    <h1>A priory анализ мощности </h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h1>Для a priori анализа нужно знать</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест</li>
+<li>уровень значимости</li>
+<li>желаемая мощность теста—80%</li>
+<li>ожидаемая величина эффекта</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="sub-section" id="slide-12" style="background:;">
+  <hgroup>
+    <h1>Пример: Заповедник спасает халиотисов *</h1>
+  </hgroup>
+  <article>
+    <p>Лов халиотисов (коммерческий и любительский) запретили, организовав заповедник.</p>
+
+<p>Стало ли больше моллюсков через несколько лет? (Keough, King, 1991)</p>
+
+<div class = "footnote">* - Данные из Quinn, Keough, 2002, Box 9-5, Fig 9-7</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h1>Что мы знаем для a priori анализа?</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест</li>
+<li>уровень значимости</li>
+<li>желаемая мощность теста</li>
+<li>ожидаемая величина эффекта</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h1>Что мы знаем для a priori анализа?</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест — $t$-критерий</li>
+<li>уровень значимости — $alpha = 0.05$</li>
+<li>желаемая мощность теста — 80%</li>
+<li>ожидаемая величина эффекта — ?</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-15" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта</h1>
+  </hgroup>
+  <article>
+    <p>$d$ Коэна (Cohen&#39;s d)</p>
+
+<p><br />
+$$d = \frac{\bar \mu_1 - \bar \mu_2}{\sigma}$$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h1>Как оценить стандартное отклонение для расчета величины эффекта?</h1>
+  </hgroup>
+  <article>
+    <p>$$d = \frac{\bar \mu_1 - \bar \mu_2}{\sigma}$$</p>
+
+<ul>
+<li><p>как среднеквадратичное стандартное отклонение<br>
+($d$ Коэна)
+$$d={{|\bar x _1 - \bar x _2  |} \over {\sqrt{{s_1^2 + s_2^2 } \over {2} }}}$$</p></li>
+<li><p>как обобщенное стандартное отклонение<br>
+($g$ Хеджа)
+$$g={
+{|\bar x _1 - \bar x _2|} \over {\sqrt{{(n _1 - 1)s_1^{2} + (n _2 - 1)s_2^{2} } \over {n _1 + n _2 - 2} } }}$$</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h1>Как оценить ожидаемую величину эффекта?</h1>
+  </hgroup>
+  <article>
+    <ul class = "build">
+<li>Пилотные исследования</li>
+<li>Литература</li>
+<li>Общебиологические знания</li>
+<li>Технические требования</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта из общих соображений</h1>
+  </hgroup>
+  <article>
+    <p>Яков Коэн (1982)</p>
+
+<p>сильные, умеренные и слабые эффекты</p>
+
+<pre><code class="r">library(pwr)
+cohen.ES(test = &quot;t&quot;, size = &quot;large&quot;)
+</code></pre>
+
+<pre><code>## 
+##      Conventional effect size from Cohen (1982) 
+## 
+##            test = t
+##            size = large
+##     effect.size = 0.8
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-20" style="background:;">
+  <hgroup>
+    <h1>Рассчитайте </h1>
+  </hgroup>
+  <article>
+    <p>величину умеренных и слабых эффектов для t-критерия</p>
+
+<pre><code class="r">    library()
+    cohen.ES()
+</code></pre>
+
+<p><small>Подсказка: обозначения можно посмотреть в файлах справки</small></p>
+
+<pre><code class="r">    help(cohen.ES)
+    ?cohen.ES
+    cohen.ES # курсор на слове, нажать F1
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта из пилотных данных</h1>
+  </hgroup>
+  <article>
+    <p>${\sigma}$ - cтандартное отклонение плотности халиотисов:</p>
+
+<p>Плотность крупных халиотисов на $50 м^2$</p>
+
+<p>$$\bar x = 47.5$$
+$$SD = 27.7$$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта из пилотных данных</h1>
+  </hgroup>
+  <article>
+    <p>${\bar \mu_1 - \bar \mu_2}$ - cредний вылов халиотисов в год:</p>
+
+<ul>
+<li>Масса выловленных -&gt; размер -&gt; численность -&gt; плотность</li>
+<li>Коммерческий лов ~ любительский лов</li>
+</ul>
+
+<p>Коммерческий лов  = 11.6 экз. $м^{-2}$</p>
+
+<p>Коммерческий + любительский лов = 23.2 экз. $м^{-2}$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h1>Данные для анализа мощности собраны</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">alpha &lt;- 0.05
+power &lt;- 0.80
+sigma &lt;- 27.7 # варьирование плотности халиотисов
+diff &lt;- 23.2 # ожидаемые различия плотности халиотисов
+effect &lt;- diff/sigma # величина эффекта
+effect
+</code></pre>
+
+<pre><code>## [1] 0.838
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h1>Считаем объем выборки</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">pwr.t.test(n = NULL, d = effect, power = power, sig.level = alpha, 
+           type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 23.4
+##               d = 0.838
+##       sig.level = 0.05
+##           power = 0.8
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group
+</code></pre>
+
+<ul class = "build">
+<li>Чтобы с вероятностью 0.8 выявить различия плотности халиотисов в местах, где лов разрешен и запрещен, нужно обследовать <strong>по 24 места каждого типа</strong>, если мы верно оценили величину эффекта.</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-25" style="background:;">
+  <hgroup>
+    <h1>Рассчитайте</h1>
+  </hgroup>
+  <article>
+    <p>сколько нужно обследовать мест, чтобы обнаружить слабый эффект<br>
+с вероятностью 0.8, при уровне значимости 0.01</p>
+
+<pre><code class="r">    cohen.ES()
+    pwr.t.test()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">cohen.ES(test = &quot;t&quot;, size = &quot;small&quot;)
+</code></pre>
+
+<pre><code>## 
+##      Conventional effect size from Cohen (1982) 
+## 
+##            test = t
+##            size = small
+##     effect.size = 0.2
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">pwr.t.test(n = NULL, d = 0.2, power = 0.8, sig.level = 0.01, 
+           type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 586
+##               d = 0.2
+##       sig.level = 0.01
+##           power = 0.8
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="sub-section" id="slide-28" style="background:;">
+  <hgroup>
+    <h1>Пример: Улитки на устрицах в мангровых зарослях *</h1>
+  </hgroup>
+  <article>
+    <p>В каких зонах мангровых зарослей на устрицах предпочитают обитать улитки?</p>
+
+<p>Minchinton, Ross, 1999</p>
+
+<p><br /></p>
+
+<ul class = "build">
+<li><p>Зона зарослей - 4 (по 5 проб - число улиток на раковинах устриц)</p>
+
+<ul>
+<li>LZ - ближе к земле, без деревьев,</li>
+<li>MZ - средняя часть без деревьев,</li>
+<li>SZ(-TR) - ближе к морю, без деревьев</li>
+<li>SZ(+TR) - ближе к морю, с деревьями</li>
+</ul></li>
+<li><p>Сайт - 2</p>
+
+<ul>
+<li>A</li>
+<li>B</li>
+</ul></li>
+</ul>
+
+<div class = "footnote">* - Данные из Quinn, Keough, 2002, Box 9-5, Fig 9-7</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h1>Читаем данные из файла</h1>
+  </hgroup>
+  <article>
+    <p>Не забудте войти в вашу директорию для матметодов,
+например, так</p>
+
+<pre><code class="r"># setwd(&quot;C:\\Мои\ документы\\mathmethR\\) # в Windows
+# setwd(/home/yourusername/mathmethR/) # в Linux
+
+library(gdata)
+minch &lt;- read.xls(xls = &quot;./data/minch.xls&quot;, sheet = 1)
+</code></pre>
+
+<pre><code class="r"># можете попробовать, что получится
+minch
+head(minch)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    <h1>Структура данных</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">str(minch) 
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    40 obs. of  6 variables:
+##  $ X       : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ site    : Factor w/ 2 levels &quot;A&quot;,&quot;B&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ zone    : Factor w/ 4 levels &quot;LZ&quot;,&quot;MZ&quot;,&quot;SZ(-TR)&quot;,..: 3 3 3 3 3 4 4 4 4 4 ...
+##  $ limpt   : num  0.16 0.11 0.1 0.16 0.15 0.12 0 0.03 0.05 0.43 ...
+##  $ limpt100: int  16 11 10 16 15 12 0 3 5 43 ...
+##  $ sqlim100: num  4 3.32 3.16 4 3.87 ...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h1>Гистограмма числа улиток</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(ggplot2)
+ggplot(data = minch, aes(x = limpt100)) + geom_histogram(stat = &quot;bin&quot;, binwidth = 3)
+</code></pre>
+
+<p><img src="figure/snail_plots.png" title="plot of chunk snail_plots" alt="plot of chunk snail_plots" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    <h1>Раскрашиваем гистограмму</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">hp &lt;- ggplot(data = minch, aes(x = limpt100, fill = site)) + 
+  geom_histogram(stat = &quot;bin&quot;, binwidth = 3, position = &quot;dodge&quot;)
+hp
+</code></pre>
+
+<p><img src="figure/snail_hp_noname.png" title="plot of chunk snail_hp_noname" alt="plot of chunk snail_hp_noname" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h1>Называем оси, если нужно</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">hp &lt;- hp + 
+  labs(x = &quot;Число улиток на 100 устриц&quot;, y = &quot;Число проб&quot;, fill = &quot;Сайт&quot;)
+hp
+</code></pre>
+
+<p><img src="figure/snail_hp.png" title="plot of chunk snail_hp" alt="plot of chunk snail_hp" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h1>Чтобы не переписывать все</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># меняем только эстетику
+hp + aes(fill = zone) + 
+  labs(fill = &quot;Зона литорали&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-13.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h1>График с панелями</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">hp + facet_wrap(~ zone)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-14.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-36" style="background:;">
+  <hgroup>
+    <h1>Поэкспериментируйте</h1>
+  </hgroup>
+  <article>
+    <p>с панелями</p>
+
+<p>Что происходит, если мы выбираем другие переменные? Почему?</p>
+
+<p>Какие еще бывают варианты разбивки на панели?<br />
+<small>Подсказка: напишите <code>facet</code> и нажмите <code>Ctrl+Space</code></small></p>
+
+<p>Что будет если менять <code>fill</code> и <code>facet</code> одновременно?</p>
+
+<pre><code class="r">    ggplot()
+    aes()
+    geom_histogram()
+    facet_wrap()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-37" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># hp + aes(fill = limpt100) # ошибка, т.к. непрерывная шкала, вместо дискретной
+# у эстетики должна быть дискретная шкала
+
+# одновременно панели и раскрашивание
+hp + facet_grid(site~zone) + aes(fill = zone) 
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-16.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-38" style="background:;">
+  <hgroup>
+    <h1>Боксплоты числа улиток</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">bp &lt;- ggplot(data = minch, aes(x = site, y = limpt100)) + 
+  geom_boxplot()
+bp
+</code></pre>
+
+<p><img src="figure/snail_bp.png" title="plot of chunk snail_bp" alt="plot of chunk snail_bp" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-39" style="background:;">
+  <hgroup>
+    <h1>Поэкспериментируйте</h1>
+  </hgroup>
+  <article>
+    <p>с панелями <code>facet</code> и с эстетиками <code>fill</code> и <code>colour</code></p>
+
+<p>Что будет, если мы выберем другие переменные?</p>
+
+<p>Опишите форму и разброс распределения улиток в двух сайтах<br>
+Симметрично? Похоже ли на нормальное?</p>
+
+<pre><code class="r">    ggplot()
+    aes()
+    geom_boxplot()
+    facet_wrap()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-40" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">    bp + aes(colour = zone)
+    bp + aes(fill = site)
+    bp + aes(fill = site) + facet_wrap(~zone)
+    bp + facet_grid(site~zone)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-41" style="background:;">
+  <hgroup>
+    <h1>Постройте</h1>
+  </hgroup>
+  <article>
+    <p>боксплот и гистограмму переменной <strong>sqlim100</strong> (квадратный корень из численности улиток) для двух сайтов<br /></p>
+
+<p><small>Подсказка: <code>x</code> и <code>y</code> это тоже эстетики, поэтому можно использовать предыдущие графики</small></p>
+
+<p>Стало ли распределение больше походить на нормальное?</p>
+
+<pre><code class="r">    ggplot()
+    geom_histogram()
+    geom_boxplot()
+    aes()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-42" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">bp + aes(fill = site)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-20.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-43" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">bp + aes(y = sqlim100, fill = site)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-21.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-44" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">hp + aes(fill = site) + labs(fill = &quot;Сайт&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-22.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-45" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">hp + aes(x = sqlim100, fill = site) + labs(fill = &quot;Сайт&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-23.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-46" style="background:;">
+  <hgroup>
+    <h1>A priory анализ мощности</h1>
+  </hgroup>
+  <article>
+    <p>Представим, что было пилотное исследование:<br />
+2 сайта, 4 зоны, по 2 пробы</p>
+
+<pre><code class="r">minch_smpl &lt;- read.xls(xls = &quot;./data/minch_smpl.xls&quot;, sheet = 1)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-47" style="background:;">
+  <hgroup>
+    <h1>Мы хотим сравнить сайты</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">ggplot(data = minch_smpl, aes(x = site, y = sqlim100)) + 
+  geom_boxplot(aes(fill = site))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-25.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-48" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта по исходным данным</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(effsize)
+effect &lt;- cohen.d(minch_smpl$sqlim100, minch_smpl$site)
+effect
+</code></pre>
+
+<pre><code>## 
+## Cohen&#39;s d
+## 
+## d estimate: -0.159 (negligible)
+## 95 percent confidence interval:
+##     A     A 
+## -1.31  0.99
+</code></pre>
+
+<ul class = "build">
+<li>дальше нам понадобится строка &quot;d estimate: -0.159 (negligible)&quot;<br>
+как добыть из нее значение?</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-49" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта по исходным данным</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">str(effect)
+</code></pre>
+
+<pre><code>## List of 7
+##  $ method    : chr &quot;Cohen&#39;s d&quot;
+##  $ name      : chr &quot;d&quot;
+##  $ estimate  : Named num -0.159
+##   ..- attr(*, &quot;names&quot;)= chr &quot;A&quot;
+##  $ conf.int  : Named num [1:2] -1.31 0.99
+##   ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;A&quot; &quot;A&quot;
+##  $ var       : Named num 0.535
+##   ..- attr(*, &quot;names&quot;)= chr &quot;A&quot;
+##  $ conf.level: num 0.95
+##  $ magnitude : chr &quot;negligible&quot;
+##  - attr(*, &quot;class&quot;)= chr &quot;effsize&quot;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-50" style="background:;">
+  <hgroup>
+    <h1>Величина эффекта по исходным данным</h1>
+  </hgroup>
+  <article>
+    <p><code>$</code> - для обращения к переменным по именам (для обращения к элементам сложного объекта)</p>
+
+<pre><code class="r">str(effect)
+</code></pre>
+
+<pre><code>## List of 7
+##  $ method    : chr &quot;Cohen&#39;s d&quot;
+##  $ name      : chr &quot;d&quot;
+##  $ estimate  : Named num -0.159
+##   ..- attr(*, &quot;names&quot;)= chr &quot;A&quot;
+##  $ conf.int  : Named num [1:2] -1.31 0.99
+##   ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;A&quot; &quot;A&quot;
+##  $ var       : Named num 0.535
+##   ..- attr(*, &quot;names&quot;)= chr &quot;A&quot;
+##  $ conf.level: num 0.95
+##  $ magnitude : chr &quot;negligible&quot;
+##  - attr(*, &quot;class&quot;)= chr &quot;effsize&quot;
+</code></pre>
+
+<pre><code class="r">effect$estimate
+</code></pre>
+
+<pre><code>##      A 
+## -0.159
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-51" style="background:;">
+  <hgroup>
+    <h1>Для pwr.t.test() эффект должен быть положительным</h1>
+  </hgroup>
+  <article>
+    <p>Вычислим модуль, чтобы потом использовать <code>effect</code></p>
+
+<pre><code class="r">effect &lt;- abs(effect$estimate) # абсолютная величина (модуль)
+effect
+</code></pre>
+
+<pre><code>##     A 
+## 0.159
+</code></pre>
+
+<ul class = "build">
+<li>Очень слабый эффект...</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-52" style="background:;">
+  <hgroup>
+    <h1>Рассчитайте</h1>
+  </hgroup>
+  <article>
+    <p>объем выборки, чтобы показать различия плотности улиток между сайтами с вероятностью 0.8?</p>
+
+<pre><code class="r">    pwr.t.test()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-53" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">pwr.t.test(n = NULL, d = effect, power = 0.8, sig.level = 0.05, 
+           type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 624
+##               d = 0.159
+##       sig.level = 0.05
+##           power = 0.8
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group
+</code></pre>
+
+<ul class = "build">
+<li>Нужна выборка <strong>624 площадки с каждого сайта</strong>, чтобы с вероятностью 0.8 обнаружить различия плотности улиток между сайтами.</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-54" style="background:;">
+  <hgroup>
+    <h1>Что получилось на самом деле?</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># bp &lt;- ggplot(data = minch, aes(x = site, y = limpt100)) + geom_boxplot()
+bp + aes(y = sqlim100)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-31.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-55" style="background:;">
+  <hgroup>
+    <h1>t-критерий</h1>
+  </hgroup>
+  <article>
+    <p>по умолчанию Модификация Велча - для неравных дисперсий</p>
+
+<pre><code class="r">t.test(sqlim100 ~ site, data = minch, var.equal = FALSE)
+</code></pre>
+
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  sqlim100 by site
+## t = -1.15, df = 38, p-value = 0.2556
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -2.198  0.602
+## sample estimates:
+## mean in group A mean in group B 
+##            2.11            2.91
+</code></pre>
+
+<ul class = "build">
+<li>Достоверных различий плотности улиток между локациями не обнаружено (t-критерий, p&lt;0.01)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-56" style="background:;">
+  <hgroup>
+    <h1>Post hoc анализ мощности </h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-57" style="background:;">
+  <hgroup>
+    <h1>Для post hoc анализа нужно знать</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест ($H _0$ отвергнута!)</li>
+<li>уровень значимости</li>
+<li>фактический объем выборки</li>
+<li>фактическая величина эффекта</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="sub-section" id="slide-58" style="background:;">
+  <hgroup>
+    <h1>Пример: Улитки на устрицах в мангровых зарослях *</h1>
+  </hgroup>
+  <article>
+    <p>Какова была реальная величина эффекта?</p>
+
+<p>Хватило ли нам мощности, чтобы выявлять такие незначительные различия?</p>
+
+<div class = "footnote">* - Данные из Quinn, Keough, 2002, Box 7-1, Fig 7-4</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-59" style="background:;">
+  <hgroup>
+    <h1>Что мы знаем для post hoc анализа?</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест</li>
+<li>уровень значимости</li>
+<li>фактический объем выборки</li>
+<li>фактическая величина эффекта</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-60" style="background:;">
+  <hgroup>
+    <h1>Что мы знаем для post hoc анализа?</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>тест — t-критерий</li>
+<li>уровень значимости — α = 0.05</li>
+<li>фактический объем выборки — 20</li>
+<li>фактическая величина эффекта — ?</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-61" style="background:;">
+  <hgroup>
+    <h1>Рассчитайте</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>фактическую величину эффекта</li>
+<li>реальную мощность теста</li>
+</ul>
+
+<pre><code class="r">    $
+    cohen.d()
+    abs()
+    pwr.t.test()
+    help()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-62" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">effect_real &lt;- cohen.d(minch$sqlim100, minch$site)
+effect_real &lt;- abs(effect_real$estimate)
+pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 5.05, 
+           type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## Error: &#39;sig.level&#39; must be numeric in [0, 1]
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-63" style="background:;">
+  <hgroup>
+    <h1>Минимальные выявляемые различия</h1>
+  </hgroup>
+  <article>
+    <p>$$d={{|\bar x _1 - \bar x _2  |} \over {\sqrt{{s_1^2 + s_2^2 } \over {2} }}}$$</p>
+
+<p>$$MDES = {|\bar x _1 - \bar x _2  |} = d {\sqrt{{s_1^2 + s_2^2 } \over {2} }}$$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-64" style="background:;">
+  <hgroup>
+    <h1>Найдем Коэновскую величину эффекта</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">d &lt;- pwr.t.test(n = 20, d = NULL, power = 0.8, sig.level = 0.05, 
+                type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
+str(d)
+</code></pre>
+
+<pre><code>## List of 7
+##  $ n          : num 20
+##  $ d          : num 0.909
+##  $ sig.level  : num 0.05
+##  $ power      : num 0.8
+##  $ alternative: chr &quot;two.sided&quot;
+##  $ note       : chr &quot;n is number in *each* group&quot;
+##  $ method     : chr &quot;Two-sample t test power calculation&quot;
+##  - attr(*, &quot;class&quot;)= chr &quot;power.htest&quot;
+</code></pre>
+
+<pre><code class="r">d$d
+</code></pre>
+
+<pre><code>## [1] 0.909
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-65" style="background:;">
+  <hgroup>
+    <h1>Минимальные выявляемые различия</h1>
+  </hgroup>
+  <article>
+    <p>$$MDES = d {\sqrt{{s_1^2 + s_2^2 } \over {2} }}$$</p>
+
+<pre><code class="r">library(plyr) # пакет, чтобы делать статистику по группам
+(summary_by_site &lt;- ddply(minch, ~ site, summarize, 
+                         mean = mean(sqlim100), 
+                         var = var(sqlim100)))
+</code></pre>
+
+<pre><code>##   site mean  var
+## 1    A 2.11 4.84
+## 2    B 2.91 4.73
+</code></pre>
+
+<pre><code class="r">(MDES &lt;- d$d * sqrt(sum(summary_by_site$var)/2))
+</code></pre>
+
+<pre><code>## [1] 1.99
+</code></pre>
+
+<pre><code class="r">(diff &lt;- summary_by_site$mean[2] - summary_by_site$mean[1])
+</code></pre>
+
+<pre><code>## [1] 0.798
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-66" style="background:;">
+  <hgroup>
+    <h1>Мощность при разных объемах групп </h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="sub-section" id="slide-67" style="background:;">
+  <hgroup>
+    <h1>А что если бы было не по 20 проб на каждом сайте?</h1>
+  </hgroup>
+  <article>
+    <p>Улитки на устрицах в мангровых зарослях</p>
+
+<ul>
+<li>сайт A - 20 проб</li>
+<li>сайт B - 40 проб</li>
+</ul>
+
+<pre><code class="r">pwr.t2n.test()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-68" style="background:;">
+  <hgroup>
+    <h1>Мощность при разных объемах групп</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># effect_real &lt;- cohen.d(minch$sqlim100, minch$site)
+# effect_real &lt;- abs(effect_real$estimate)
+pwr.t2n.test(n1 = 20, n2 = 40, d = effect_real, power = NULL, 
+             sig.level = .05, alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## 
+##      t test power calculation 
+## 
+##              n1 = 20
+##              n2 = 40
+##               d = 0.365
+##       sig.level = 0.05
+##           power = 0.259
+##     alternative = two.sided
+</code></pre>
+
+<ul class = "build">
+<li>Все равно мощность маленькая! Важен ли такой эффект? Стоит ли за ним гоняться?</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-69" style="background:;">
+  <hgroup>
+    <h1>Рассчитайте</h1>
+  </hgroup>
+  <article>
+    <p>Выборка в первой группе $n = 200$</p>
+
+<p>Какой объем выборки понадобится во второй группе, чтобы выявлять малые различия в плотности улиток между двумя сайтами (слабые эффекты) с вероятностью 0.8 при уровне значимости 0.05?</p>
+
+<pre><code class="r">    cohen.ES()
+    pwr.t2n.test()
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-70" style="background:;">
+  <hgroup>
+    <h1></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">small_effect &lt;- cohen.ES(test = &quot;t&quot;, size = &quot;small&quot;)
+small_effect &lt;- small_effect$effect.size
+pwr.t2n.test(d = 0.2, n1 = 200, n2 = NULL, power = 0.8, sig.level = 0.05,
+             alternative = &quot;two.sided&quot;)
+</code></pre>
+
+<pre><code>## 
+##      t test power calculation 
+## 
+##              n1 = 200
+##              n2 = 10486
+##               d = 0.2
+##       sig.level = 0.05
+##           power = 0.8
+##     alternative = two.sided
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-71" style="background:;">
+  <hgroup>
+    <h1>Как влиять на мощность теста?</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-72" style="background:;">
+  <hgroup>
+    <h1>Мощность зависит </h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>от объема выборки</li>
+<li>от величины эффекта</li>
+<li>от уровня значимости</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-73" style="background:;">
+  <hgroup>
+    <h1>Чем больше объем выборки—тем больше мощность</h1>
+  </hgroup>
+  <article>
+    <p><img src="figure/pwr_vs_n.png" title="plot of chunk pwr_vs_n" alt="plot of chunk pwr_vs_n" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-74" style="background:;">
+  <hgroup>
+    <h1>Чем больше уровень значимости—тем больше мощность</h1>
+  </hgroup>
+  <article>
+    <p><img src="figure/unnamed-chunk-41.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-75" style="background:;">
+  <hgroup>
+    <h1>Чем больше величина различий—тем больше мощность</h1>
+  </hgroup>
+  <article>
+    <p><img src="figure/unnamed-chunk-42.png" title="plot of chunk unnamed-chunk-42" alt="plot of chunk unnamed-chunk-42" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-76" style="background:;">
+  <hgroup>
+    <h1>Назовите,</h1>
+  </hgroup>
+  <article>
+    <p>какие из факторов, влияющих на мощность теста,<br>
+мы <strong>не можем</strong> контролировать?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-77" style="background:;">
+  <hgroup>
+    <h1>Мы не можем контролировать внешние факторы</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>величину эффекта ($ES$)</li>
+<li>фоновую изменчивость ($\sigma^2$)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-78" style="background:;">
+  <hgroup>
+    <h1>Скажите,</h1>
+  </hgroup>
+  <article>
+    <p>каким образом можно повлиять на мощность теста?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-79" style="background:;">
+  <hgroup>
+    <h1>Мощность теста можно регулировать, если</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>изменить число повторностей</li>
+<li>выбрать другой уровень значимости ($\alpha$)</li>
+<li>определиться, какие эффекты действительно важны ($ES$)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-80" style="background:;">
+  <hgroup>
+    <h1>Take home messages</h1>
+  </hgroup>
+  <article>
+    <ul class = "build">
+<li><p>Контролируем статистические ошибки:</p>
+
+<ul>
+<li>чтобы не находить несуществующих эффектов, фиксируем уровень значимости</li>
+<li>чтобы не пропустить значимое, рассчитываем величину эффекта, объем выборки и мощность теста</li>
+<li>когда не обнаружили достоверных эффектов, оцениваем величину эффекта и мощность теста</li>
+</ul></li>
+<li><p>Способность выявлять различия зависит </p>
+
+<ul>
+<li>от объема выборки, </li>
+<li>от уровня значимости</li>
+<li>от величины эффекта</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-81" style="background:;">
+  <hgroup>
+    <h1>Дополнительные ресурсы</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Quinn, Keough, 2002, pp. 164-170</li>
+<li>Open Intro to Statistics: <a href="http://www.openintro.org/stat/down/oiStat2_04.pdf">4.6 Sample Size and Power</a>, pp. 193-197<br></li>
+<li>Sokal, Rohlf, 1995, pp. 167-169.<br></li>
+<li>Zar, 1999, p. 83.</li>
+<li><a href="http://www.ats.ucla.edu/stat/r/dae/t_test_power2.htm">R Data Analysis Examples - Power Analysis for Two-group Independent sample t-test. UCLA: Statistical Consulting Group.</a></li>
+<li><a href="http://www.ats.ucla.edu/stat/r/dae/t_test_power.htm">R Data Analysis Examples - Power Analysis for One-sample t-test.  UCLA: Statistical Consulting Group.</a> </li>
+<li><a href="http://www.ats.ucla.edu/stat/mult_pkg/faq/general/effect_size_power/effect_size_power.htm">FAQ - How is effect size used in power analysis?  UCLA: Statistical Consulting Group.</a> </li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>
