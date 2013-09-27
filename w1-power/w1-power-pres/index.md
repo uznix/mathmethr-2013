@@ -982,12 +982,21 @@ Post hoc анализ мощности
 ```r
 effect_real <- cohen.d(minch$sqlim100, minch$site)
 effect_real <- abs(effect_real$estimate)
-pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 5.05, 
+pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 0.05, 
            type = "two.sample", alternative = "two.sided")
 ```
 
 ```
-## Error: 'sig.level' must be numeric in [0, 1]
+## 
+##      Two-sample t test power calculation 
+## 
+##               n = 20
+##               d = 0.365
+##       sig.level = 0.05
+##           power = 0.203
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group
 ```
 
 

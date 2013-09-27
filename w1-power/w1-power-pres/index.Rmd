@@ -1030,7 +1030,7 @@ Post hoc анализ мощности
 ```{r}
 effect_real <- cohen.d(minch$sqlim100, minch$site)
 effect_real <- abs(effect_real$estimate)
-pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 5.05, 
+pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 0.05, 
            type = "two.sample", alternative = "two.sided")
 ```
 

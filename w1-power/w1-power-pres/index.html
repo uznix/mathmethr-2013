@@ -1206,11 +1206,20 @@ bp + aes(y = sqlim100)
   <article>
     <pre><code class="r">effect_real &lt;- cohen.d(minch$sqlim100, minch$site)
 effect_real &lt;- abs(effect_real$estimate)
-pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 5.05, 
+pwr.t.test(n = 20, d = effect_real, power = NULL, sig.level = 0.05, 
            type = &quot;two.sample&quot;, alternative = &quot;two.sided&quot;)
 </code></pre>
 
-<pre><code>## Error: &#39;sig.level&#39; must be numeric in [0, 1]
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 20
+##               d = 0.365
+##       sig.level = 0.05
+##           power = 0.203
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group
 </code></pre>
 
   </article>
