@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Получение помощи</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h2>Получение помощи</h2>
+
+<p>С клавиатуры: курсор на слове, нажать F1</p>
+
+<p><code>help(topic)</code></p>
+
+<p><code>?function_name</code></p>
+
+<h2>Операторы</h2>
+
+<p><code>&lt;-</code> - присваивание справа налево</p>
+
+<p><code>$</code> - для обращения к переменным по именам (для обращения<br/>
+  к элементам сложного объекта)</p>
+
+<h2>Работа с пакетами</h2>
+
+<p><code>library()</code> - загрузка пакетов</p>
+
+<h2>Применение функций по группам</h2>
+
+<p><code>library(plyr)</code> - пакет, чтобы применять функции по группам,<br/>
+имена функций лучше, чем в базовом R<br/>
+первая буква - формат исходных данных, вторая - формат результата<br/>
+<code>l</code> - list, <code>a</code> - array, <code>d</code> - dataframe, _ - не присваивать</p>
+
+<p><code>ddply(.data, .variables, fun, ...)</code> - применить функцию к дата фрейму<br/>
+и собрать результаты в датафрейм<br/>
+<code>fun = summarize</code> - статистика по группам<br/>
+дополнительные аргументы для summarize<br/>
+назв_новой_переменной = функция(от_старых_переменных)</p>
+
+<h2>Рабочая директория</h2>
+
+<p>В Windows:<br/>
+<code>setwd(&quot;C:\\Мои\ документы\\another\ folder\\folder_with_underscores\\&quot;)</code></p>
+
+<p>В Linux:<br/>
+<code>setwd(&quot;/folder/another\ folder/folder_with_underscores/&quot;)</code></p>
+
+<p>Как записывается относительный <a href="http://ru.wikipedia.org/wiki/%D0%9F%D1%83%D1%82%D1%8C_%D0%BA_%D1%84%D0%B0%D0%B9%D0%BB%D1%83">путь к файлу</a> для вашей системы посмотрите в Википедии пожалуйста. Здесь пример для юниксоподобных систем</p>
+
+<p><code>.</code>  - Текущая директория<br/>
+<code>./child_folder</code> - путь в дочернюю директорию<br/>
+<code>..</code> - Директория на уровень выше<br/>
+<code>./..</code> - путь в директорию на уровень выше<br/>
+<code>./../sibling_folder</code> - путь в сестринскую директорию  </p>
+
+<h2>Чтение из файла</h2>
+
+<p><code>library(gdata)</code></p>
+
+<p><code>read.xls(xls, sheet)</code> чтение из .xls</p>
+
+<h2>Информация о данных</h2>
+
+<p><code>str(object)</code> - структура объекта (например, данных)</p>
+
+<h2>Математические</h2>
+
+<p><code>abs(x)</code> - абсолютная величина (модуль)</p>
+
+<h2>Описательная статистика</h2>
+
+<p><code>mean(x)</code> - среднее значение</p>
+
+<p><code>var(x)</code> - дисперсия</p>
+
+<h2>t-критерий</h2>
+
+<p><code>t.test(sqlim100 ~ site, data=minch, var.equal = FALSE)</code>
+по умолчанию модификация Велча - для неравных дисперсий <code>var.equal = FALSE</code></p>
+
+<h2>Анализ мощности</h2>
+
+<p><code>library(pwr)</code> - анализ мощности</p>
+
+<p><code>cohen.ES(test, size)</code> - величина эффекта по Коэну (сильные, средние, слабые)</p>
+
+<p><code>pwr.t.test(n, d, power, sig.level, type, alternative)</code> - мощность t-теста.<br/>
+Явно указать один из аргументов <code>= NULL</code> (тот, который нужно найти)</p>
+
+<p><code>pwr.t2n.test(n1, n2, d, power, sig.level, alternative)</code> - мощность<br/>
+при разных объемах групп</p>
+
+<p><code>library(effsize)</code>- расчет величины эффекта</p>
+
+<p><code>cohen.d(d, f)</code> - величина эффекта по исходным данным</p>
+
+<h2>Графики</h2>
+
+<p><code>library(ggplot2)</code></p>
+
+<p><code>ggplot(data, aes()) + geom_XXXXXXX()</code> - график(данные, эстетики()) + тип графика()</p>
+
+<p><code>aes()</code> - эстетики<br/>
+<code>x</code>, <code>y</code>, <code>fill</code>, <code>colour</code>, &hellip;</p>
+
+<p><code>geom_histogram()</code> - гистограммы</p>
+
+<p><code>geom_boxplot()</code>  - боксплот</p>
+
+<p><code>facet_wrap()</code>  - лента графиков</p>
+
+<p><code>facet_grid()</code> - сетка графиков</p>
+
+<p><code>labs(x, y, title, ...)</code> - подписи</p>
+
+<p><code>xlab(&quot;название оси x&quot;)</code> - название оси х</p>
+
+<p><code>ylab(&quot;название оси y&quot;)</code> - название оси y</p>
+
+</body>
+
+</html>
+
