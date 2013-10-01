@@ -64,8 +64,9 @@ pwr.t.test(n = NULL, d = effect, power = power, sig.level = alpha,
 # # setwd("C:\\Мои\ документы\\mathmethR\\) # в Windows
 # # setwd(/home/yourusername/mathmethR/) # в Linux
 
-library(gdata)
-minch <- read.xls(xls = "./data/minch.xls", sheet = 1)
+library(XLConnect)
+wb <- loadWorkbook("./data/minch.xls")
+minch <- readWorksheet(wb, sheet = 1)
 
 # можете попробовать, что получится
 minch
@@ -148,7 +149,9 @@ bp
 # ========================================================
 # Представим, что было пилотное исследование:  
 # 2 сайта, 4 зоны, по 2 пробы
-minch_smpl <- read.xls(xls = "./data/minch_smpl.xls", sheet = 1)
+library(XLConnect)
+wb1 <- loadWorkbook("./data/minch_smpl.xls")
+minch_smpl <- readWorksheet(wb1, sheet = 1)
 
 # Мы хотим сравнить сайты
 ggplot(data = minch_smpl, aes(x = site, y = sqlim100)) + 
