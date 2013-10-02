@@ -1,4 +1,3 @@
-# added one more line
 # A priory анализ мощности 
 # ========================================================
 # Пример: Заповедник спасает халиотисов *
@@ -61,12 +60,17 @@ pwr.t.test(n = NULL, d = effect, power = power, sig.level = alpha,
 # Читаем данные из файла
 # Не забудте войти в вашу директорию для матметодов,
 # например, так
-# # setwd("C:\\Мои\ документы\\mathmethR\\) # в Windows
-# # setwd(/home/yourusername/mathmethR/) # в Linux
+# # setwd("C:\\Мои\ документы\\mathmethR) # в Windows
+# # setwd(/home/yourusername/mathmethR) # в Linux
 
+setwd("/media/data/ProjectsWork/lect-mathmethr-2013/w1-power")
 library(XLConnect)
 wb <- loadWorkbook("./data/minch.xls")
 minch <- readWorksheet(wb, sheet = 1)
+
+## Если не получается, попробуйте чтение из .csv,
+# minch <- read.delim("./data/minch.csv")
+## Ctrl+Shift+C - Comment lines
 
 # можете попробовать, что получится
 minch
