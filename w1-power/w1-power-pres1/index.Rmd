@@ -16,7 +16,6 @@ mode        : standalone # {selfcontained, standalone, draft}
 - Мощность статистического теста
 - *A priori* анализ мощности
 - Оценка величины эффекта
-- *Post hoc* анализ мощности
 
 ```{r setup, include = FALSE, cache = FALSE}
 opts_chunk$set(fig.align='center',  
