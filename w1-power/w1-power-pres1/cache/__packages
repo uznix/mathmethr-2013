@@ -1,0 +1,11 @@
+base
+effsize
+gdata
+ggplot2
+gridExtra
+knitr
+plyr
+pwr
+reshape2
+rJava
+XLConnect
