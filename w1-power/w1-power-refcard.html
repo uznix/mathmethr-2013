@@ -181,7 +181,8 @@ hr {
 <p>В Linux:<br/>
 <code>setwd(&quot;/folder/another\ folder/folder_with_underscores/&quot;)</code></p>
 
-<p>Как записывается относительный <a href="http://ru.wikipedia.org/wiki/%D0%9F%D1%83%D1%82%D1%8C_%D0%BA_%D1%84%D0%B0%D0%B9%D0%BB%D1%83">путь к файлу</a> для вашей системы посмотрите в Википедии пожалуйста. Здесь пример для юниксоподобных систем</p>
+<p>Как записывается относительный <a href="http://ru.wikipedia.org/wiki/%D0%9F%D1%83%D1%82%D1%8C_%D0%BA_%D1%84%D0%B0%D0%B9%D0%BB%D1%83">путь к файлу</a> для вашей системы<br/>
+посмотрите в Википедии пожалуйста. Здесь пример для юниксоподобных систем</p>
 
 <p><code>.</code>  - Текущая директория<br/>
 <code>./child_folder</code> - путь в дочернюю директорию<br/>
@@ -191,9 +192,14 @@ hr {
 
 <h2>Чтение из файла</h2>
 
-<p><code>library(gdata)</code></p>
+<p><code>read.table()</code>, <code>read.csv()</code>, <code>read.delim()</code> - базовые функции для чтения<br/>
+данных из текстовых таблиц (текст с разделителями)</p>
 
-<p><code>read.xls(xls, sheet)</code> чтение из .xls</p>
+<p><code>library(XLConnect)</code> - пакет для чтения данных из Excel</p>
+
+<p><code>my_wb &lt;- loadWorkbook(&quot;./path-to/your-file.xls&quot;)</code> - открываем книгу Excel</p>
+
+<p><code>my_data &lt;- readWorksheet(wb, sheet = your-sheet-number)</code> - читаем лист из книги Excel</p>
 
 <h2>Информация о данных</h2>
 
