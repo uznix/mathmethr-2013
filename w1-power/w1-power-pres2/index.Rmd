@@ -17,23 +17,36 @@ mode        : standalone # {selfcontained, standalone, draft}
 - *Post hoc* анализ мощности
 
 ```{r setup, include = FALSE, cache = FALSE}
-opts_chunk$set(fig.align='center',  
-               tidy = FALSE, 
-               fig.width = 10, 
-               fig.height = 6)
-options(markdown.extensions = c("no_intra_emphasis", 
-                                "tables", 
-                                "fenced_code", 
-                                "autolink", 
-                                "strikethrough", 
-                                "lax_spacing", 
-                                "space_headers", 
-                                "latex_math"))
+#----------------------------------------------------------------
+# RUN THE FRAGMENT BETWEEN LINES BEFORE COMPILING MARKDOWN
+# to configure markdown parsing
+options(markdown.extensions = 
+          c("no_intra_emphasis",# skip markdown embedded in words
+            "tables",           # create HTML tables
+            "fenced_code",      # treat text as verbatim when surrounded with begin and ending lines with three ~ or ' characters.
+            "autolink",         # create HTML links from urls and email addresses.
+            "strikethrough",    # create strikethroughs by surrounding text with ~~.
+            "lax_spacing",      # allow HTML tags inside paragraphs without being surrounded by newlines.
+            "space_headers",    # add a space between header hashes and the header itself.
+            "latex_math"))      # transforms all math equations into syntactically correct MathJax equations.
+#--------------------------------------------------------------
+# output options
+options(width = 80, # set the maximum number of columns on a line
+        scipen = 6, # fixed notation of floating point numbers, unless it is more than scipen digits wider, else - exponential notation
+        digits = 3) # the number of digits to print when printing numeric values
+
+# to render cyrillics in plots use cairo pdf
 options(device = function(file, width = 7, height = 7, ...) {
   cairo_pdf(tempfile(), width = width, height = height, ...)
   })
 
-# this allows for code formatting inline.  
+# chunk default options
+opts_chunk$set(fig.align='center',  # default figure alignment
+               tidy = FALSE,        # save manual code formatting
+               fig.width = 10,      # default figure width
+               fig.height = 6)      # default figure height
+
+# this allows for code formatting inline
 knit_hooks$set(inline = function(x) {
    if (is.numeric(x)) return(knitr:::format_sci(x, 'latex'))
    x = as.character(x)
@@ -43,7 +56,6 @@ knit_hooks$set(inline = function(x) {
    h = gsub("([_#$%&])", "\\\\\\1", h)
    h = gsub('(["\'])', '\\1{}', h)
    gsub('^\\\\begin\\{alltt\\}\\s*|\\\\end\\{alltt\\}\\s*$', '', h)})
-options(width = 80, scipen = 6, digits = 3)
 ```
 
 ```{r themes, echo = FALSE, cache = FALSE}
