@@ -10,6 +10,9 @@ widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
 mode        : standalone # {selfcontained, standalone, draft}
 ---
 
+
+
+
 Знакомимся с линейными моделями
 ========================================================
 
@@ -233,7 +236,7 @@ p_nelson <- ggplot(data=nelson, aes(x = humidity, y = weightloss)) +
 p_nelson
 ```
 
-<img src="figure/unnamed-chunk-5.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-6.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
 
 
 ---
@@ -250,7 +253,7 @@ theme_set(theme_classic()) # устанавливаем понравившуюс
 ```
 
 
-<img src="figure/unnamed-chunk-8.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-9.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" />
 
 
 ---
@@ -293,7 +296,7 @@ summary(nelson_lm)
 p_nelson + geom_smooth(method = "lm")
 ```
 
-<img src="figure/unnamed-chunk-10.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-11.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
 
 
 --- .prompt
@@ -307,7 +310,7 @@ p_nelson + geom_smooth(method = "lm")
 p_nelson + geom_smooth(method = "lm")
 ```
 
-<img src="figure/unnamed-chunk-11.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-12.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" style="display: block; margin: auto;" />
 
 
 *** pnotes
@@ -407,7 +410,7 @@ predict(nelson_lm, newdata,
 
 *** right
 
-<img src="figure/unnamed-chunk-14.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-15.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto;" />
 
 
 >- При 50 и 100% относительной влажности ожидаемая средняя потеря веса жуков будет 6 $\pm$ 0.2 и 3.4 $\pm$ 0.4, соответственно.
@@ -424,7 +427,7 @@ p_nelson + geom_smooth(method = "lm", level = 0.99) +
   ggtitle ("99% доверительная зона регрессии")
 ```
 
-<img src="figure/unnamed-chunk-16.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-17.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" />
 
 
 ---
@@ -481,7 +484,7 @@ predict(nelson_lm, newdata,
 
 *** right
 
-<img src="figure/unnamed-chunk-18.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-19.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" />
 
 
 >- У 95% жуков при 50 и 100% относительной влажности будет потеря веса будет в пределах 6 $\pm$ 0.7 и 3.4 $\pm$ 0.8, соответственно.
@@ -534,7 +537,7 @@ p_nelson + geom_smooth(method = "lm", aes(fill = "Доверительный и�
   scale_fill_manual('Интервалы', values = c('green', 'blue'))
 ```
 
-<img src="figure/unnamed-chunk-20.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" style="display: block; margin: auto;" />
+<img src="figure/unnamed-chunk-21.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" style="display: block; margin: auto;" />
 
 
 --- .segue
