@@ -1,0 +1,18 @@
+Description:
+The possum data frame consists of morphometric measurements on mountain brushtail possums, trapped at seven sites from Southern Victoria to central Queensland.
+
+Source:
+Lindenmayer, D. B., Viggers, K. L., Cunningham, R. B., and Donnelly, C. F. 1995. Morphological variation among columns of the mountain brushtail possum, Trichosurus caninus Ogilby (Phalangeridae: Marsupiala). Australian Journal of Zoology 43: 449-458.
+
+Source R-package: openintro
+data(possum)
+
+Variables:
+site - one of seven locations where possums were trapped
+pop - a factor which classifies the sites as Vic Victoria, other New South Wales or Queensland
+sex - a factor with levels f female, m male
+age - age
+headl - head length, in mm
+skullw - skull width, in mm
+totall - total length, in cm
+taill - tail length, in cm

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Регрессионный анализ, часть 2. Вариант 1.</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</head>
+
+<body>
+<h2>Регрессионный анализ, часть 2. Вариант 1.</h2>
+
+<p>Отметьте правильные варианты ответов - Х
+а неправильные - 0</p>
+
+<h3>Условия применимости линейной регрессии</h3>
+
+<ul>
+<li>Линейная связь</li>
+<li>Гомогенность дисперсий остатков</li>
+<li>Дисперсия остатков равна единице</li>
+<li>Независимость значений \( y \)</li>
+</ul>
+
+<h3>Отметьте все верные утверждения, если уравнение линейной регрессии \( y = 0.2 - 1.8x \), \( R^2 = 58 \)</h3>
+
+<ul>
+<li>При изменении \( х \) на единицу \( y \) увеличивается на 0.2</li>
+<li>Регрессионная модель дает верную оценку \( y \) с вероятностью 97%</li>
+<li>При \( x = 1 \) \( y \) будет равен \( -1.6 \)</li>
+<li>между \( x \) и \( y \) отрицательная корреляция</li>
+</ul>
+
+<h3>Какими свойствами обладают точки, влияющие сильнее всего на ход регрессии?</h3>
+
+<ul>
+<li>Небольшая величина остатка</li>
+<li>Очень большие и очень маленькие значения \( x \)</li>
+<li>Близость к центру области определения</li>
+<li>Маленькие значения расстояния Кука</li>
+</ul>
+
+<h3>Что происходит с точками данных на скаттерплоте при маленьких значениях коэффициента детерминации \( R^2 \)?</h3>
+
+<ul>
+<li>Связь становится нелинейной</li>
+<li>Разброс точек вокруг линии регрессии возрастает</li>
+<li>Уменьшается угол наклона регрессионной прямой</li>
+<li>Точки ложаться ближе к линии регрессии</li>
+</ul>
+
+</body>
+
+</html>
+
