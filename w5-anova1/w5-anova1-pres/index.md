@@ -7,7 +7,7 @@ framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : idea      # 
 widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
-mode        : selfcontained # {selfcontained, standalone, draft}
+mode        : standalone # {selfcontained, standalone, draft}
 ---
 
 Знакомимся дисперсионным анализом
@@ -535,7 +535,7 @@ tomato_pht <- glht(tomato_aov, linfct = mcp(trt = "Tukey"))
 
 ---
 
-Результаты попарных сравнений при помощи теста Тьюки
+Результаты попарных сравнений (тест Тьюки)
 ========================================================
 
 ```r
