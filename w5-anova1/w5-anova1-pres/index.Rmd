@@ -1,0 +1,554 @@
+---
+title       : Дисперсионный анализ, часть 1
+subtitle    : Математические методы в зоологии - на R, осень 2013
+author      : Марина Варфоломеева
+job         : Каф. Зоологии беспозвоночных, СПбГУ
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : idea      # 
+widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {selfcontained, standalone, draft}
+---
+
+Знакомимся дисперсионным анализом
+========================================================
+
+- Опасности множественных сравнений
+- Почему можно использовать дисперсии для сравнения средних
+- Модель дисперсионного анализа
+- Условия применимости дисперсионного анализа
+- Post hoc тесты
+- Представление результатов дисперсионного анализа
+
+```{r setup, include = FALSE, cache = FALSE}
+#----------------------------------------------------------------
+# RUN THE FRAGMENT BETWEEN LINES BEFORE COMPILING MARKDOWN
+# to configure markdown parsing
+options(markdown.extensions = 
+          c("no_intra_emphasis",# skip markdown embedded in words
+            "tables",           # create HTML tables
+            "fenced_code",      # treat text as verbatim when surrounded with begin and ending lines with three ~ or ' characters.
+            "autolink",         # create HTML links from urls and email addresses.
+            "strikethrough",    # create strikethroughs by surrounding text with ~~.
+            "lax_spacing",      # allow HTML tags inside paragraphs without being surrounded by newlines.
+            "space_headers",    # add a space between header hashes and the header itself.
+            "latex_math"))      # transforms all math equations into syntactically correct MathJax equations.
+#--------------------------------------------------------------
+# output options
+options(width = 80, # set the maximum number of columns on a line
+        scipen = 6, # fixed notation of floating point numbers, unless it is more than scipen digits wider, else - exponential notation
+        digits = 3) # the number of digits to print when printing numeric values
+
+# to render cyrillics in plots use cairo pdf
+options(device = function(file, width = 6, height = 6, ...) {
+  cairo_pdf(tempfile(), width = width, height = height, ...)
+  })
+
+# chunk default options
+opts_chunk$set(fig.align='center',  # default figure alignment
+               tidy = FALSE,        # save manual code formatting
+               fig.width = 10,      # default figure width
+               fig.height = 6)      # default figure height
+
+# this allows for code formatting inline
+knit_hooks$set(inline = function(x) {
+   if (is.numeric(x)) return(knitr:::format_sci(x, 'latex'))
+   x = as.character(x)
+   h = knitr:::hilight_source(x, 'latex', list(prompt = FALSE, 
+                                               size='normalsize', 
+                                               highlight = FALSE))
+   h = gsub("([_#$%&])", "\\\\\\1", h)
+   h = gsub('(["\'])', '\\1{}', h)
+   gsub('^\\\\begin\\{alltt\\}\\s*|\\\\end\\{alltt\\}\\s*$', '', h)})
+```
+
+--- .learning
+
+Вы сможете
+========================================================
+- Объяснить, в чем опасность множественных сравнений, и как с ними можно бороться
+- Рассказать, как в дисперсионном анализе моделируются значения зависимой переменной
+- Перечислить и проверить условия применимости дисперсионного анализа
+- Интерпретировать и описать результаты, записанные в таблице дисперсионного анализа
+- Провести множественные попарные сравнения при помощи post hoc теста Тьюки, представить и описать их результаты
+
+---
+
+Сеодня нам понадобятся...
+========================================================
+
+```{r message=FALSE}
+# Пакеты
+# install.packages(c("reshape", "multcomp"))
+library(reshape)
+library(multcomp)
+library(XLConnect)
+library(ggplot2)
+# Настраиваем графику
+# чтобы кружочки были круглые (в Windows может быть 
+# не заметно на экране, но при выводе в файл должно работать)
+update_geom_defaults("point", list(shape = 19)) 
+# устанавливаем тему и относительный размер шрифта
+theme_set(theme_bw(base_size = 16)) 
+```
+
+--- &twocol
+
+Пример: рост корневой системы томатов
+========================================================
+
+```{r eval=FALSE, tidy=TRUE}
+tomato <- readWorksheetFromFile(file="./data/tomato.xlsx", sheet = 1)
+# tomato <- read.table(file="./data/tomato.csv", header=TRUE, dec = ",")
+tomato
+```
+
+*** left
+
+```{r echo=FALSE}
+tomato <- readWorksheetFromFile(file="./../data/tomato.xlsx", sheet = 1)
+# tomato <- read.table(file="./data/tomato.csv", header=TRUE, dec = ",")
+tomato
+```
+
+*** right
+
+Фактор:
+- `trt`  - варианты обработки. Уровни фактора:
+  - `Water` - вода,
+  - `1N` - 1 конц. удобрения, 
+  - `3N` - 3 конц. удобрения, 
+  - `D+1N` - гербицид + 1 конц. удобрения
+
+Зависимая переменная:
+- `weight` - вес корневой системы томатов (г)
+
+<div class = "footnote">Данные: Dr Ron Balham, Victoria University of Wellington NZ, 1971 - 1976.</div>
+
+---
+
+Для красоты на графиках упорядочиваем значения фактора `trt`
+========================================================
+
+```{r}
+str(tomato)
+tomato$trt <- factor(tomato$trt) # Если вы открывали из xls
+levels(tomato$trt) # уровни фактора
+# Хотим, чтобы первым был уровень "Water"
+tomato$trt <- relevel(tomato$trt, ref = "Water")
+str(tomato) # проверяем, что получилось
+```
+
+---
+
+В каких условиях корневая система лучше развивалась?
+========================================================
+
+```{r fig.height = 5}
+tom_p <- ggplot(data = tomato, aes(x = trt, y = weight)) + 
+  labs(x = "Обработка", y = "Вес, г")
+tom_p + geom_boxplot()
+```
+
+Как мы можем это посчитать?
+
+--- .segue
+
+Опасности множественных сравнений
+========================================================
+
+--- &twocol
+
+Попарные сравнения средних
+========================================================
+
+*** left
+
+### 2 группы - 1 сравнение
+
+$\alpha _{для\ сравнения} = 0.05$
+
+*** right
+
+### 4 группы - 6 сравнений
+
+$\alpha _{для\ сравнения} = 0.05$
+
+### А для группы из 6 сравнений?
+
+>- $\alpha _{для\ группы\ сравнений} = 0.05 \cdot 6 = 0.3$
+- Опасно! Случайно найдем различия там, где их нет!
+
+--- 
+
+Что делать, если нужно много сравнений?
+========================================================
+
+### 1. Можно снизить $\alpha _{для\ сравнения}$
+
+$\alpha _{для\ группы\ сравнений} = \alpha _{для\ сравнения} \cdot n$
+
+Хотим зафиксировать $\alpha _{для\ группы\ сравнений} = 0.05$
+
+>- Поправка Бонферрони:  
+  $\alpha _{для\ сравнения} = \frac{\alpha _{для\ группы\ сравнений}}{n}$
+
+>- для 4 групп, 6 сравнений, $\alpha _{для\ сравнения} = 0.008$  
+  Очень жесткий критерий!
+
+--- .segue
+
+Дисперсионный анализ
+========================================================
+
+## Вместо множественных сравнений
+## без потери мощности
+
+---
+
+Почему для сравнений средних можно использовать дисперсии?
+========================================================
+
+Где различия убедительнее?
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+n <- 100
+groups <- c(rep("A1", n), rep("A2", n), rep("A3", n))
+varsm <- .9
+varl <- 1.7
+x1 <- c(rnorm(n, 10, varsm), rnorm(n, 15, varsm), rnorm(n, 20, varsm))
+x2 <- c(rnorm(n, 10, varl), rnorm(n, 15, varl), rnorm(n, 20, varl))
+df <- data.frame(groups, x1, x2)
+p1 <- ggplot(df, aes(x = groups, y = x1)) + geom_boxplot() + theme(axis.title = element_blank()) + ylim(0, 25)
+p2 <- ggplot(df, aes(x = groups, y = x2)) + geom_boxplot() + theme(axis.title = element_blank()) + ylim(0, 25)
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+---
+
+Сравним разброс значений внутри групп и между групповыми средними
+========================================================
+
+```{r echo = FALSE, warning=FALSE}
+grid.arrange(p1 + ggtitle("Разброс между средними\nБОЛЬШЕ, чем внутри групп"), 
+             p2 + ggtitle("Разброс между средними\nМЕНЬШЕ, чем внутри групп"), 
+             ncol = 2)
+```
+
+Можно проверить при помощи F-критерия
+
+--- .segue
+
+Модель дисперсионного анализа
+========================================================
+
+--- &twocol
+
+Модель дисперсионного анализа
+========================================================
+
+*** left
+
+```{r echo = FALSE}
+tomato
+```
+
+*** right
+
+$$y _{ij} = \mu + a _i + \epsilon _{ij}$$
+
+Градации фактора | Общее среднее | Эффект фактора | Случайная изменчивость
+----- | ----- | ----- | -----
+Water | $$\mu$$ | $$a _1$$ | $\epsilon _{1}$, $\epsilon _{2}$, ..., $\epsilon _{6}$
+1N | $$\mu$$ | $$a _2$$ | $\epsilon _{7}$, $\epsilon _{8}$, ..., $\epsilon _{12}$
+3N | $$\mu$$ | $$a _3$$ | $\epsilon _{13}$, $\epsilon _{14}$, ..., $\epsilon _{18}$
+D+1N | $$\mu$$ | $$a _4$$ | $\epsilon _{19}$, $\epsilon _{20}$, ..., $\epsilon _{24}$
+
+---
+
+Структура общей изменчивости
+========================================================
+Общая изменчивость (SSt) = Факторная (SSx) + Случайная (SSe)
+
+```{r echo = FALSE, fig.width = 14}
+# # Общая изменчивость (отклонения от общего среднего)
+tom_p_total <- tom_p + 
+  geom_jitter(position = position_jitter(width = 0.3)) +
+  geom_hline(yintercept = mean(tomato$weight), linetype = "dashed") + 
+  annotate("text", label = "Общее\nсреднее", 
+           x = 0,  y = mean(tomato$weight), hjust = -0.1, size = 4) + 
+  ylim(0, 3) +
+  ggtitle("Общая изменчивость\n(отклонения от общего среднего)") +
+  annotate("text", label = "SS[t] == sum((bar(x) - x[i]))^2", parse = TRUE, x = 0,  y = 0.25, hjust = -0.1, size = 8) +
+  theme(plot.title = element_text(size = 16))
+
+
+# Межгрупповая изменчивость (связанная с фактором)
+tom_p_factor <- tom_p + 
+  geom_hline(yintercept = mean(tomato$weight), linetype = "dashed") + 
+  geom_errorbar(stat = "hline", yintercept = "mean", 
+                width = .8, aes(ymax = ..y.., ymin = ..y..)) + 
+  ylim(0, 3) +
+  ggtitle("Факторная изменчивость\n(межгрупповая)")+
+    annotate("text", label = "SS[x] == sum((bar(x) - hat(x)[i]))^2", parse = TRUE, x = 0,  y = 0.25, hjust = -0.1, size = 8) +
+  theme(plot.title = element_text(size = 16))
+
+# Внутригрупповая изменчивость (случайная)
+tom_p_error <- tom_p + 
+  geom_jitter(position = position_jitter(width = 0.3)) +
+  geom_errorbar(stat = "hline", yintercept = "mean", 
+                width = .8, aes(ymax = ..y.., ymin = ..y..)) + 
+  ylim(0, 3) +
+  ggtitle("Случайная изменчивость\n(внутригрупповая)")+
+    annotate("text", label = "SS[e] == sum(sum((x [i] - hat(x)[i])))^2", parse = TRUE, x = 0,  y = 0.25, hjust = -0.1, size = 8) +
+  theme(plot.title = element_text(size = 16))
+
+library(gridExtra)
+grid.arrange(tom_p_total, tom_p_factor, tom_p_error, ncol = 3)
+```
+>- Если выборки из одной совокупности,  
+Факторная изменчивость = Случайная изменчивость
+
+--- 
+
+Таблица дисперсионного анализа
+========================================================
+
+Источник изменчивости  |  Суммы квадратов отклонений,<br /><br /> SS   |   Число степеней свободы,<br /><br /> df   | Средний квадрат отклонений<br />(дисперсия),<br /> MS | F  
+---------------------- | --------- | ------ | ------------------- | -----
+Название фактора | $$SS _x = \sum{(\bar x - \hat x _i)^2}$$ | $$df _x = a - 1$$ | $$MS _x = \frac{SS _x}{df _x}$$ | $$F _{df _r, df _e} = \frac{MS _r}{MS _e}$$
+Случайная | $$SS _e = \sum{(x _i - \hat x _i)^2}$$ | $$df _e = N - a$$ | $$MS _e = \frac{SS _e}{df _e}$$ | 
+Общая | $$SS _t = \sum {(\bar x - x _i)^2}$$ | $$df _t = N - 1$$ | 
+
+<br />
+Гипотезы:
+
+$H _0: MS _x = MS _e$
+
+$H _1: MS _x ≠ MS _e$
+
+--- .prompt
+
+Назовите условия применимости дисперсионного анализа,
+========================================================
+
+если известно, что дисперсионный анализ - линейная модель, как и регрессия.
+
+--- 
+
+Условия примененимости дисперсионного анализа,
+========================================================
+- Случайность и независимость групп и наблюдений внутри групп
+- Нормальное распределение вариант в группах
+- Гомогенность дисперсий в группах
+
+Другие ограничения
+- Лучше работает, если размеры групп примерно одинаковы
+- Устойчив к отклонениям от нормального распределения (при равных объемах групп)
+
+
+--- .segue
+
+Что же с ростом томатов?
+========================================================
+
+---
+
+Посмотрим на данные
+========================================================
+
+```{r}
+library(reshape) # есть удобные функции для описания данных
+# статистику по столбцам можно получить так:
+summarise(tomato, mean = mean(weight), variance = var(weight), sd = sd(weight), n = sum(!is.na(weight)))
+```
+<br />
+__Статистика по столбцам и по группам__ одновременно (n, средние, дисперсии, стандартные отклонения)
+
+```{r}
+tomato_summary <- ddply(tomato, "trt", summarise, 
+                        n = sum(!is.na(weight)),
+                        mean = mean(weight), 
+                        variance = var(weight),
+                        sd = sd(weight))
+tomato_summary # краткое описание данных
+```
+
+---
+
+Этот график нам пригодится для представления результатов
+========================================================
+
+```{r fig.height = 5}
+tomato_p_means <- ggplot(tomato_summary, aes(x = trt, y = mean)) + 
+  geom_bar(stat = "identity", fill = "gray70", colour = "black", width = 0.5) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2) +
+  labs(x = "Обработка", y = "Вес, г")
+tomato_p_means
+```
+
+>- Чтобы проверить, какие именно средние отличаются, нужен дисперсионный анализ
+
+---
+
+Проверяем  условия применимости дисперсионного анализа
+========================================================
+## Нормальность и гомогенность дисперсий - боксплот
+```{r fig.height = 5}
+ggplot(data = tomato, aes(x = trt, y = weight)) + geom_boxplot()
+```
+
+>- Мне не нравится дисперсия в группе "1удобр", проверим ее на графике остатков позже
+
+---
+
+Cвязь дисперсий и средних (проверка гомогенности дисперсий)
+========================================================
+
+```{r fig.height = 5}
+# Данные взяли в кратком описании
+ggplot(tomato_summary, aes(x = mean, y = variance)) + geom_point()
+```
+
+>- Есть подозрительная группа с большим средним и большой дисперсией, это, скорее всего та же самая "1удобр"
+
+---
+
+Дисперсионный анализ
+========================================================
+```{r}
+tomato_aov <- aov(weight ~ trt, data=tomato)
+# summary(tomato_aov)
+# Данные для анализа остатков
+tomato_diag <- fortify(tomato_aov)
+head(tomato_diag)
+```
+---
+
+Теперь можно проверить условия применимости на графиках остатков
+========================================================
+
+```{r fig.height = 5}
+ggplot(tomato_diag, aes(x = .fitted, y = .stdresid)) + geom_point(aes(size = .cooksd)) + geom_hline(yintercept = 0)
+```
+>- Один подозрительный томат с самым большим средним - большой остаток
+
+---
+
+# Квантильный график
+========================================================
+```{r fig.height = 5}
+ggplot(tomato_diag) + geom_point(stat = "qq", aes(sample = .stdresid)) + 
+  geom_abline(yintercept = 0, slope = sd(tomato_diag$.stdresid))
+```
+
+---
+
+Таблица дисперсионного анализа
+========================================================
+```{r}
+anova(tomato_aov)
+```
+<br />
+>- Дисперсионный анализ показал, что внесение добавок в почву влияет на рост корневой системы томатов ($F _{3, 20} = 3.61$, $p < 0.05$).
+
+--- .segue
+
+Post hoc тесты
+========================================================
+## Как же проверить какие именно группы отличаются?
+
+---
+
+Post-hoc тесты
+========================================================
+
+- `glht()` - "general linear hypotheses testing"
+- `linfct` - гипотеза для тестирования
+- `mcp()` - функция, чтобы задать множественные сравнения (обычные пост-хоки)
+- `trt` = "Tukey" - тест Тьюки по фактору `trt`
+
+```{r}
+library(multcomp)
+tomato_pht <- glht(tomato_aov, linfct = mcp(trt = "Tukey"))
+```
+
+---
+
+Результаты попарных сравнений при помощи теста Тьюки
+========================================================
+```{r}
+summary(tomato_pht)
+```
+
+>- Результаты теста Тьюки показали, что рост корневой системы в группе, где помимо удобрений использовали гербицид, не отличался от других групп. При этом достоверные различия были найдены только между группами, где вносили удобрения в разной концентрации (тест Тьюки, $p < 0.05$). 
+
+---
+
+График результатов пост-хок теста.
+========================================================
+
+Буквенные обозначения берем из результатов пост-хок теста. Достоверно различающиеся группы - разными буквами.
+
+```{r}
+tomato_p_anova <- tomato_p_means + 
+  geom_text(aes(y = 0.5, label = c("AB", "A", "B", "AB")), colour = "white", size = 10)
+tomato_p_anova
+```
+
+
+--- .segue
+
+Готовим результаты к представлению
+========================================================
+
+---
+
+Приводим график в печатный вид
+========================================================
+```{r}
+tomato_p_anova +
+  scale_y_continuous(expand = c(0,0), limit = c(0, 3)) + 
+  scale_x_discrete(labels = c("вода", "1 удобр.", "3 удобр.", "герб.+удобр."))
+```
+<br />
+>- вот теперь можно сохранить
+
+---
+
+Сохраняем таблицу дисперсионного анализа в файл
+========================================================
+```{r eval = FALSE}
+# Исходная таблица
+medley_res <- anova(medley_aov)
+# в xls или xlsx с помощью XLConnect
+writeWorksheetToFile(data = medley_res, file = "medley_res.xls", sheet = "anova_table")
+# в буфер обмена (без доп. настроек только Windows)
+write.table(file = "clipboard", x = medley_res, sep = "\t")
+```
+
+---
+
+Take home messages
+========================================================
+
+>- При множественных попарных сравнениях увеличивается вероятность ошибки первого рода. Поправка Бонферрони - способ точно рассчитать, насколько нужно снизить уровень значимости для каждого из сравнений
+- При помощи дисперсионного анализа можно проверить гипотезу о равенстве средних значений
+- Условия применимости простой линейной регрессии должны выполняться, чтобы
+тестировать гипотезы
+  - Случайность и независимость групп и наблюдений внутри групп
+  - Нормальное распределение вариант в группах
+  - Гомогенность дисперсий в группах
+- Post hoc тесты - это попарные сравнения после дисперсионного анализа, которые позволяют сказать, какие именно средние различаются
+
+---
+
+Дополнительные ресурсы
+========================================================
+
+- Quinn, Keough, 2002, pp. 173-207
+- Logan, 2010, pp. 254 - 282
+- [Open Intro to Statistics](http://www.openintro.org/stat/), pp.236-246 
+- Sokal, Rohlf, 1995, pp. 179-260
+- Zar, 2010, pp. 189-207

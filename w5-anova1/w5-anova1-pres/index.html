@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Дисперсионный анализ, часть 1</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Дисперсионный анализ, часть 1">
+  <meta name="author" content="Марина Варфоломеева">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/idea.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+<link rel="stylesheet" href = "assets/css/z.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Дисперсионный анализ, часть 1</h1>
+        <h2>Математические методы в зоологии - на R, осень 2013</h2>
+        <p>Марина Варфоломеева<br/>Каф. Зоологии беспозвоночных, СПбГУ</p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h1>Знакомимся дисперсионным анализом</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Опасности множественных сравнений</li>
+<li>Почему можно использовать дисперсии для сравнения средних</li>
+<li>Модель дисперсионного анализа</li>
+<li>Условия применимости дисперсионного анализа</li>
+<li>Post hoc тесты</li>
+<li>Представление результатов дисперсионного анализа</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="learning" id="slide-2" style="background:;">
+  <hgroup>
+    <h1>Вы сможете</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Объяснить, в чем опасность множественных сравнений, и как с ними можно бороться</li>
+<li>Рассказать, как в дисперсионном анализе моделируются значения зависимой переменной</li>
+<li>Перечислить и проверить условия применимости дисперсионного анализа</li>
+<li>Интерпретировать и описать результаты, записанные в таблице дисперсионного анализа</li>
+<li>Провести множественные попарные сравнения при помощи post hoc теста Тьюки, представить и описать их результаты</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h1>Сеодня нам понадобятся...</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># Пакеты
+# install.packages(c(&quot;reshape&quot;, &quot;multcomp&quot;))
+library(reshape)
+library(multcomp)
+library(XLConnect)
+library(ggplot2)
+# Настраиваем графику
+# чтобы кружочки были круглые (в Windows может быть 
+# не заметно на экране, но при выводе в файл должно работать)
+update_geom_defaults(&quot;point&quot;, list(shape = 19)) 
+# устанавливаем тему и относительный размер шрифта
+theme_set(theme_bw(base_size = 16)) 
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h1>Пример: рост корневой системы томатов</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">tomato &lt;- readWorksheetFromFile(file = &quot;./data/tomato.xlsx&quot;, sheet = 1)
+# tomato &lt;- read.table(file=&#39;./data/tomato.csv&#39;, header=TRUE, dec = &#39;,&#39;)
+tomato
+</code></pre>
+
+
+<div style='float:left;width:48%;' class='centered'>
+  <pre><code>##    weight   trt
+## 1    1.50 Water
+## 2    1.90 Water
+## 3    1.30 Water
+## 4    1.50 Water
+## 5    2.40 Water
+## 6    1.50 Water
+## 7    1.50    1N
+## 8    1.20    1N
+## 9    1.20    1N
+## 10   2.10    1N
+## 11   2.90    1N
+## 12   1.60    1N
+## 13   1.90  D+1N
+## 14   1.60  D+1N
+## 15   0.80  D+1N
+## 16   1.15  D+1N
+## 17   0.90  D+1N
+## 18   1.60  D+1N
+## 19   1.00    3N
+## 20   1.20    3N
+## 21   1.30    3N
+## 22   0.90    3N
+## 23   0.70    3N
+## 24   0.80    3N
+</code></pre>
+
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>Фактор:</p>
+
+<ul>
+<li><code>trt</code>  - варианты обработки. Уровни фактора:
+
+<ul>
+<li><code>Water</code> - вода,</li>
+<li><code>1N</code> - 1 конц. удобрения, </li>
+<li><code>3N</code> - 3 конц. удобрения, </li>
+<li><code>D+1N</code> - гербицид + 1 конц. удобрения</li>
+</ul></li>
+</ul>
+
+<p>Зависимая переменная:</p>
+
+<ul>
+<li><code>weight</code> - вес корневой системы томатов (г)</li>
+</ul>
+
+<div class = "footnote">Данные: Dr Ron Balham, Victoria University of Wellington NZ, 1971 - 1976.</div>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h1>Для красоты на графиках упорядочиваем значения фактора <code>trt</code></h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">str(tomato)
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    24 obs. of  2 variables:
+##  $ weight: num  1.5 1.9 1.3 1.5 2.4 1.5 1.5 1.2 1.2 2.1 ...
+##  $ trt   : chr  &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; &quot;Water&quot; ...
+</code></pre>
+
+<pre><code class="r">tomato$trt &lt;- factor(tomato$trt) # Если вы открывали из xls
+levels(tomato$trt) # уровни фактора
+</code></pre>
+
+<pre><code>## [1] &quot;1N&quot;    &quot;3N&quot;    &quot;D+1N&quot;  &quot;Water&quot;
+</code></pre>
+
+<pre><code class="r"># Хотим, чтобы первым был уровень &quot;Water&quot;
+tomato$trt &lt;- relevel(tomato$trt, ref = &quot;Water&quot;)
+str(tomato) # проверяем, что получилось
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    24 obs. of  2 variables:
+##  $ weight: num  1.5 1.9 1.3 1.5 2.4 1.5 1.5 1.2 1.2 2.1 ...
+##  $ trt   : Factor w/ 4 levels &quot;Water&quot;,&quot;1N&quot;,&quot;3N&quot;,..: 1 1 1 1 1 1 2 2 2 2 ...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h1>В каких условиях корневая система лучше развивалась?</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">tom_p &lt;- ggplot(data = tomato, aes(x = trt, y = weight)) + 
+  labs(x = &quot;Обработка&quot;, y = &quot;Вес, г&quot;)
+tom_p + geom_boxplot()
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-5.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /></p>
+
+<p>Как мы можем это посчитать?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-7" style="background:;">
+  <hgroup>
+    <h1>Опасности множественных сравнений</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h1>Попарные сравнения средних</h1>
+  </hgroup>
+  <article>
+    
+<div style='float:left;width:48%;' class='centered'>
+  <h3>2 группы - 1 сравнение</h3>
+
+<p>$\alpha _{для\ сравнения} = 0.05$</p>
+
+
+</div>
+<div style='float:right;width:48%;'>
+  <h3>4 группы - 6 сравнений</h3>
+
+<p>$\alpha _{для\ сравнения} = 0.05$</p>
+
+<h3>А для группы из 6 сравнений?</h3>
+
+<ul class = "build">
+<li>$\alpha _{для\ группы\ сравнений} = 0.05 \cdot 6 = 0.3$</li>
+<li>Опасно! Случайно найдем различия там, где их нет!</li>
+</ul>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h1>Что делать, если нужно много сравнений?</h1>
+  </hgroup>
+  <article>
+    <h3>1. Можно снизить $\alpha _{для\ сравнения}$</h3>
+
+<p>$\alpha _{для\ группы\ сравнений} = \alpha _{для\ сравнения} \cdot n$</p>
+
+<p>Хотим зафиксировать $\alpha _{для\ группы\ сравнений} = 0.05$</p>
+
+<ul class = "build">
+<li><p>Поправка Бонферрони:<br>
+$\alpha _{для\ сравнения} = \frac{\alpha _{для\ группы\ сравнений}}{n}$</p></li>
+<li><p>для 4 групп, 6 сравнений, $\alpha _{для\ сравнения} = 0.008$<br>
+Очень жесткий критерий!</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-10" style="background:;">
+  <hgroup>
+    <h1>Дисперсионный анализ</h1>
+  </hgroup>
+  <article>
+    <h2>Вместо множественных сравнений</h2>
+
+<h2>без потери мощности</h2>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h1>Почему для сравнений средних можно использовать дисперсии?</h1>
+  </hgroup>
+  <article>
+    <p>Где различия убедительнее?</p>
+
+<p><img src="figure/unnamed-chunk-6.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h1>Сравним разброс значений внутри групп и между групповыми средними</h1>
+  </hgroup>
+  <article>
+    <p><img src="figure/unnamed-chunk-7.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" /></p>
+
+<p>Можно проверить при помощи F-критерия</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-13" style="background:;">
+  <hgroup>
+    <h1>Модель дисперсионного анализа</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h1>Модель дисперсионного анализа</h1>
+  </hgroup>
+  <article>
+    
+<div style='float:left;width:48%;' class='centered'>
+  <pre><code>##    weight   trt
+## 1    1.50 Water
+## 2    1.90 Water
+## 3    1.30 Water
+## 4    1.50 Water
+## 5    2.40 Water
+## 6    1.50 Water
+## 7    1.50    1N
+## 8    1.20    1N
+## 9    1.20    1N
+## 10   2.10    1N
+## 11   2.90    1N
+## 12   1.60    1N
+## 13   1.90  D+1N
+## 14   1.60  D+1N
+## 15   0.80  D+1N
+## 16   1.15  D+1N
+## 17   0.90  D+1N
+## 18   1.60  D+1N
+## 19   1.00    3N
+## 20   1.20    3N
+## 21   1.30    3N
+## 22   0.90    3N
+## 23   0.70    3N
+## 24   0.80    3N
+</code></pre>
+
+
+</div>
+<div style='float:right;width:48%;'>
+  <p>$$y _{ij} = \mu + a _i + \epsilon _{ij}$$</p>
+
+<table><thead>
+<tr>
+<th>Градации фактора</th>
+<th>Общее среднее</th>
+<th>Эффект фактора</th>
+<th>Случайная изменчивость</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Water</td>
+<td>$$\mu$$</td>
+<td>$$a _1$$</td>
+<td>$\epsilon _{1}$, $\epsilon _{2}$, ..., $\epsilon _{6}$</td>
+</tr>
+<tr>
+<td>1N</td>
+<td>$$\mu$$</td>
+<td>$$a _2$$</td>
+<td>$\epsilon _{7}$, $\epsilon _{8}$, ..., $\epsilon _{12}$</td>
+</tr>
+<tr>
+<td>3N</td>
+<td>$$\mu$$</td>
+<td>$$a _3$$</td>
+<td>$\epsilon _{13}$, $\epsilon _{14}$, ..., $\epsilon _{18}$</td>
+</tr>
+<tr>
+<td>D+1N</td>
+<td>$$\mu$$</td>
+<td>$$a _4$$</td>
+<td>$\epsilon _{19}$, $\epsilon _{20}$, ..., $\epsilon _{24}$</td>
+</tr>
+</tbody></table>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h1>Структура общей изменчивости</h1>
+  </hgroup>
+  <article>
+    <p>Общая изменчивость (SSt) = Факторная (SSx) + Случайная (SSe)</p>
+
+<p><img src="figure/unnamed-chunk-9.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" /></p>
+
+<ul class = "build">
+<li>Если выборки из одной совокупности,<br>
+Факторная изменчивость = Случайная изменчивость</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h1>Таблица дисперсионного анализа</h1>
+  </hgroup>
+  <article>
+    <table><thead>
+<tr>
+<th>Источник изменчивости</th>
+<th>Суммы квадратов отклонений,<br /><br /> SS</th>
+<th>Число степеней свободы,<br /><br /> df</th>
+<th>Средний квадрат отклонений<br />(дисперсия),<br /> MS</th>
+<th>F</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Название фактора</td>
+<td>$$SS _x = \sum{(\bar x - \hat x _i)^2}$$</td>
+<td>$$df _x = a - 1$$</td>
+<td>$$MS _x = \frac{SS _x}{df _x}$$</td>
+<td>$$F _{df _r, df _e} = \frac{MS _r}{MS _e}$$</td>
+</tr>
+<tr>
+<td>Случайная</td>
+<td>$$SS _e = \sum{(x _i - \hat x _i)^2}$$</td>
+<td>$$df _e = N - a$$</td>
+<td>$$MS _e = \frac{SS _e}{df _e}$$</td>
+<td></td>
+</tr>
+<tr>
+<td>Общая</td>
+<td>$$SS _t = \sum {(\bar x - x _i)^2}$$</td>
+<td>$$df _t = N - 1$$</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+
+<p><br />
+Гипотезы:</p>
+
+<p>$H _0: MS _x = MS _e$</p>
+
+<p>$H _1: MS _x ≠ MS _e$</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="prompt" id="slide-17" style="background:;">
+  <hgroup>
+    <h1>Назовите условия применимости дисперсионного анализа,</h1>
+  </hgroup>
+  <article>
+    <p>если известно, что дисперсионный анализ - линейная модель, как и регрессия.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h1>Условия примененимости дисперсионного анализа,</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Случайность и независимость групп и наблюдений внутри групп</li>
+<li>Нормальное распределение вариант в группах</li>
+<li>Гомогенность дисперсий в группах</li>
+</ul>
+
+<p>Другие ограничения</p>
+
+<ul>
+<li>Лучше работает, если размеры групп примерно одинаковы</li>
+<li>Устойчив к отклонениям от нормального распределения (при равных объемах групп)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-19" style="background:;">
+  <hgroup>
+    <h1>Что же с ростом томатов?</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    <h1>Посмотрим на данные</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(reshape) # есть удобные функции для описания данных
+# статистику по столбцам можно получить так:
+summarise(tomato, mean = mean(weight), variance = var(weight), sd = sd(weight), n = sum(!is.na(weight)))
+</code></pre>
+
+<pre><code>##   mean variance    sd  n
+## 1 1.44     0.28 0.529 24
+</code></pre>
+
+<p><br />
+<strong>Статистика по столбцам и по группам</strong> одновременно (n, средние, дисперсии, стандартные отклонения)</p>
+
+<pre><code class="r">tomato_summary &lt;- ddply(tomato, &quot;trt&quot;, summarise, 
+                        n = sum(!is.na(weight)),
+                        mean = mean(weight), 
+                        variance = var(weight),
+                        sd = sd(weight))
+tomato_summary # краткое описание данных
+</code></pre>
+
+<pre><code>##     trt n  mean variance    sd
+## 1 Water 6 1.683   0.1617 0.402
+## 2    1N 6 1.750   0.4270 0.653
+## 3    3N 6 0.983   0.0537 0.232
+## 4  D+1N 6 1.325   0.1938 0.440
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h1>Этот график нам пригодится для представления результатов</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">tomato_p_means &lt;- ggplot(tomato_summary, aes(x = trt, y = mean)) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;gray70&quot;, colour = &quot;black&quot;, width = 0.5) + 
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.2) +
+  labs(x = &quot;Обработка&quot;, y = &quot;Вес, г&quot;)
+tomato_p_means
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-12.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" style="display: block; margin: auto;" /></p>
+
+<ul class = "build">
+<li>Чтобы проверить, какие именно средние отличаются, нужен дисперсионный анализ</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h1>Проверяем  условия применимости дисперсионного анализа</h1>
+  </hgroup>
+  <article>
+    <h2>Нормальность и гомогенность дисперсий - боксплот</h2>
+
+<pre><code class="r">ggplot(data = tomato, aes(x = trt, y = weight)) + geom_boxplot()
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-13.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" style="display: block; margin: auto;" /></p>
+
+<ul class = "build">
+<li>Мне не нравится дисперсия в группе &quot;1удобр&quot;, проверим ее на графике остатков позже</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h1>Cвязь дисперсий и средних (проверка гомогенности дисперсий)</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># Данные взяли в кратком описании
+ggplot(tomato_summary, aes(x = mean, y = variance)) + geom_point()
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-14.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" /></p>
+
+<ul class = "build">
+<li>Есть подозрительная группа с большим средним и большой дисперсией, это, скорее всего та же самая &quot;1удобр&quot;</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h1>Дисперсионный анализ</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">tomato_aov &lt;- aov(weight ~ trt, data=tomato)
+# summary(tomato_aov)
+# Данные для анализа остатков
+tomato_diag &lt;- fortify(tomato_aov)
+head(tomato_diag)
+</code></pre>
+
+<pre><code>##   weight   trt  .hat .sigma .cooksd .fitted .resid .stdresid
+## 1    1.5 Water 0.167  0.467 0.00965    1.68 -0.183    -0.439
+## 2    1.9 Water 0.167  0.466 0.01348    1.68  0.217     0.519
+## 3    1.3 Water 0.167  0.459 0.04218    1.68 -0.383    -0.918
+## 4    1.5 Water 0.167  0.467 0.00965    1.68 -0.183    -0.439
+## 5    2.4 Water 0.167  0.433 0.14743    1.68  0.717     1.717
+## 6    1.5 Water 0.167  0.467 0.00965    1.68 -0.183    -0.439
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h1>Теперь можно проверить условия применимости на графиках остатков</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">ggplot(tomato_diag, aes(x = .fitted, y = .stdresid)) + geom_point(aes(size = .cooksd)) + geom_hline(yintercept = 0)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-16.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" style="display: block; margin: auto;" /></p>
+
+<ul class = "build">
+<li>Один подозрительный томат с самым большим средним - большой остаток</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h1>Квантильный график</h1>
+  </hgroup>
+  <article>
+    <h1></h1>
+
+<pre><code class="r">ggplot(tomato_diag) + geom_point(stat = &quot;qq&quot;, aes(sample = .stdresid)) + 
+  geom_abline(yintercept = 0, slope = sd(tomato_diag$.stdresid))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-17.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h1>Таблица дисперсионного анализа</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">anova(tomato_aov)
+</code></pre>
+
+<pre><code>## Analysis of Variance Table
+## 
+## Response: weight
+##           Df Sum Sq Mean Sq F value Pr(&gt;F)  
+## trt        3   2.26   0.754    3.61  0.031 *
+## Residuals 20   4.18   0.209                 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+</code></pre>
+
+<p><br /></p>
+
+<ul class = "build">
+<li>Дисперсионный анализ показал, что внесение добавок в почву влияет на рост корневой системы томатов ($F _{3, 20} = 3.61$, $p &lt; 0.05$).</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-28" style="background:;">
+  <hgroup>
+    <h1>Post hoc тесты</h1>
+  </hgroup>
+  <article>
+    <h2>Как же проверить какие именно группы отличаются?</h2>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h1>Post-hoc тесты</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li><code>glht()</code> - &quot;general linear hypotheses testing&quot;</li>
+<li><code>linfct</code> - гипотеза для тестирования</li>
+<li><code>mcp()</code> - функция, чтобы задать множественные сравнения (обычные пост-хоки)</li>
+<li><code>trt</code> = &quot;Tukey&quot; - тест Тьюки по фактору <code>trt</code></li>
+</ul>
+
+<pre><code class="r">library(multcomp)
+tomato_pht &lt;- glht(tomato_aov, linfct = mcp(trt = &quot;Tukey&quot;))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    <h1>Результаты попарных сравнений при помощи теста Тьюки</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">summary(tomato_pht)
+</code></pre>
+
+<pre><code>## 
+##   Simultaneous Tests for General Linear Hypotheses
+## 
+## Multiple Comparisons of Means: Tukey Contrasts
+## 
+## 
+## Fit: aov(formula = weight ~ trt, data = tomato)
+## 
+## Linear Hypotheses:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## 1N - Water == 0     0.0667     0.2640    0.25    0.994  
+## 3N - Water == 0    -0.7000     0.2640   -2.65    0.067 .
+## D+1N - Water == 0  -0.3583     0.2640   -1.36    0.539  
+## 3N - 1N == 0       -0.7667     0.2640   -2.90    0.040 *
+## D+1N - 1N == 0     -0.4250     0.2640   -1.61    0.396  
+## D+1N - 3N == 0      0.3417     0.2640    1.29    0.577  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## (Adjusted p values reported -- single-step method)
+</code></pre>
+
+<ul class = "build">
+<li>Результаты теста Тьюки показали, что рост корневой системы в группе, где помимо удобрений использовали гербицид, не отличался от других групп. При этом достоверные различия были найдены только между группами, где вносили удобрения в разной концентрации (тест Тьюки, $p &lt; 0.05$). </li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h1>График результатов пост-хок теста.</h1>
+  </hgroup>
+  <article>
+    <p>Буквенные обозначения берем из результатов пост-хок теста. Достоверно различающиеся группы - разными буквами.</p>
+
+<pre><code class="r">tomato_p_anova &lt;- tomato_p_means + 
+  geom_text(aes(y = 0.5, label = c(&quot;AB&quot;, &quot;A&quot;, &quot;B&quot;, &quot;AB&quot;)), colour = &quot;white&quot;, size = 10)
+tomato_p_anova
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-21.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="segue" id="slide-32" style="background:;">
+  <hgroup>
+    <h1>Готовим результаты к представлению</h1>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h1>Приводим график в печатный вид</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r">tomato_p_anova +
+  scale_y_continuous(expand = c(0,0), limit = c(0, 3)) + 
+  scale_x_discrete(labels = c(&quot;вода&quot;, &quot;1 удобр.&quot;, &quot;3 удобр.&quot;, &quot;герб.+удобр.&quot;))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-22.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" style="display: block; margin: auto;" /></p>
+
+<p><br /></p>
+
+<ul class = "build">
+<li>вот теперь можно сохранить</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h1>Сохраняем таблицу дисперсионного анализа в файл</h1>
+  </hgroup>
+  <article>
+    <pre><code class="r"># Исходная таблица
+medley_res &lt;- anova(medley_aov)
+# в xls или xlsx с помощью XLConnect
+writeWorksheetToFile(data = medley_res, file = &quot;medley_res.xls&quot;, sheet = &quot;anova_table&quot;)
+# в буфер обмена (без доп. настроек только Windows)
+write.table(file = &quot;clipboard&quot;, x = medley_res, sep = &quot;\t&quot;)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h1>Take home messages</h1>
+  </hgroup>
+  <article>
+    <ul class = "build">
+<li>При множественных попарных сравнениях увеличивается вероятность ошибки первого рода. Поправка Бонферрони - способ точно рассчитать, насколько нужно снизить уровень значимости для каждого из сравнений</li>
+<li>При помощи дисперсионного анализа можно проверить гипотезу о равенстве средних значений</li>
+<li>Условия применимости простой линейной регрессии должны выполняться, чтобы
+тестировать гипотезы
+
+<ul>
+<li>Случайность и независимость групп и наблюдений внутри групп</li>
+<li>Нормальное распределение вариант в группах</li>
+<li>Гомогенность дисперсий в группах</li>
+</ul></li>
+<li>Post hoc тесты - это попарные сравнения после дисперсионного анализа, которые позволяют сказать, какие именно средние различаются</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+      <slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    <h1>Дополнительные ресурсы</h1>
+  </hgroup>
+  <article>
+    <ul>
+<li>Quinn, Keough, 2002, pp. 173-207</li>
+<li>Logan, 2010, pp. 254 - 282</li>
+<li><a href="http://www.openintro.org/stat/">Open Intro to Statistics</a>, pp.236-246 </li>
+<li>Sokal, Rohlf, 1995, pp. 179-260</li>
+<li>Zar, 2010, pp. 189-207</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>
