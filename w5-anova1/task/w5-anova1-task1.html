@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Дисперсионный анализ, часть 1. Домашнее задание, вариант 1.</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h2>Дисперсионный анализ, часть 1. Домашнее задание, вариант 1.</h2>
+
+<p>Пациентам больным раком желудка, бронхов, кишечника, яичников или раком груди давали в качестве поддерживающей терапии аскорбат. Исходные данные в файле &ldquo;cancera.xlsx&rdquo; содержат только некоторые из этих групп. Цель исследования выяснить отличается ли время выживания в зависимости от того, какие органы поражены. Проверьте это при помощи дисперсионного анализа. </p>
+
+<ul>
+<li>Кратко опишите исходные данные. Подходят ли они для дисперсионного анализа и какие могут быть ограничения и сложности?</li>
+<li>Проверьте условия применимости дисперсионного анализа. Все ли они выполняются?</li>
+<li>Попробуйте трансформировать данные, создавая новую переменную, с использованием <code>sqrt()</code> или <code>log10()</code>.
+<code>
+датафрейм$новая_переменная &lt;- sqrt(старая_переменная)
+</code></li>
+<li>Проведите дисперсионный анализ. Одинаково ли выживание пациентов с разным типом рака? Если разное, то проверьте при помощи пост хок теста Тьюки, какие именно группы различаются</li>
+<li>По исходным, не преобразованным данным постройте график (боксплот или столбчатый), на котором отметьте различающиеся группы.</li>
+<li>В отчете опишите ход анализа. Включите таблицу дисперсионного анализа и интерпретируйте ее. Опишите результаты пост хок теста (таблицу можно не прилагать). Сделайте вывод о том, как меняется выживание пациентов в зависимости от типа рака. Какие именно различия удалось показать? С чем это может быть связано?</li>
+<li>Приложите к отчету работающий код, файл с рисунком и файл с подписью к рисунку. Подпись должна быть достаточно подробной, чтобы рисунок можно было понять в отрыве от основного текста.</li>
+<li>Не забудьте проверить все ли вы сделали - посмотрите критерии оценок в главном меню на сайте. Узнать, как правильно процитировать R можно, выполнив команду <code>citation()</code>. Не забудьте включить ссылки на книжки по статистике.</li>
+</ul>
+
+<p><small>Данные из Cameron, E. and Pauling, L. (1978) Supplemental ascorbate in the supportive treatment of cancer: re-evaluation of prolongation of survival times in terminal human cancer. Proceedings of the National Academy of Science USA, 75, 4538Ð4542. Так же встречаются у Manly, B.F.J. (1986) Multivariate Statistical Methods: A Primer, New York: Chapman &amp; Hall, 11. Так же встречаются в кн. Hand, D.J., et al. (1994) A Handbook of Small Data Sets, London: Chapman &amp; Hall, 255.</small></p>
+
+<h3>Extra Credit</h3>
+
+<p>Что мощнее для выявления слабых эффектов на уровне значимости 0.05 при объеме выборки 45 - дизайн дисперсионный анализа, где групп 3 по 15 вариант, или дизайн где групп 5 по 9 вариант.</p>
+
+<p>Используйте функции <code>cohen.ES</code> и <code>pwr.f2.test</code> из пакета <code>pwr</code></p>
+
+</body>
+
+</html>
+
