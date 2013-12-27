@@ -1,0 +1,860 @@
+---
+title       : Дисперсионный анализ, часть 5
+subtitle    : Математические методы в зоологии - на R, осень 2013
+author      : Марина Варфоломеева
+job         : Каф. Зоологии беспозвоночных, СПбГУ
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : idea      # 
+widgets     : [mathjax]            # {mathjax, quiz, bootstrap}
+mode        : standalone # {selfcontained, standalone, draft}
+---
+
+Дисперсионный анализ
+========================================================
+
+- Модели с повторными измерениями
+
+```{r setup, include = FALSE, cache = FALSE}
+#----------------------------------------------------------------
+# RUN THE FRAGMENT BETWEEN LINES BEFORE COMPILING MARKDOWN
+# to configure markdown parsing
+library(slidify)
+options(markdown.extensions = 
+          c("no_intra_emphasis",# skip markdown embedded in words
+            "tables",           # create HTML tables
+            "fenced_code",      # treat text as verbatim when surrounded with begin and ending lines with three ~ or ' characters.
+            "autolink",         # create HTML links from urls and email addresses.
+            "strikethrough",    # create strikethroughs by surrounding text with ~~.
+            "lax_spacing",      # allow HTML tags inside paragraphs without being surrounded by newlines.
+            "space_headers",    # add a space between header hashes and the header itself.
+            "latex_math"))      # transforms all math equations into syntactically correct MathJax equations.
+#--------------------------------------------------------------
+# output options
+options(width = 80, # set the maximum number of columns on a line
+        scipen = 6, # fixed notation of floating point numbers, unless it is more than scipen digits wider, else - exponential notation
+        digits = 3) # the number of digits to print when printing numeric values
+
+# to render cyrillics in plots use cairo pdf
+options(device = function(file, width = 6, height = 6, ...) {
+  cairo_pdf(tempfile(), width = width, height = height, ...)
+  })
+
+# chunk default options
+opts_chunk$set(fig.align='center',  # default figure alignment
+               tidy = FALSE,        # save manual code formatting
+               warnings = FALSE,
+               message = FALSE,
+               fig.width = 6,      # default figure width
+               fig.height = 7)      # default figure height
+
+# this allows for code formatting inline
+knit_hooks$set(inline = function(x) {
+   if (is.numeric(x)) return(knitr:::format_sci(x, 'latex'))
+   x = as.character(x)
+   h = knitr:::hilight_source(x, 'latex', list(prompt = FALSE, 
+                                               size='normalsize', 
+                                               highlight = FALSE))
+   h = gsub("([_#$%&])", "\\\\\\1", h)
+   h = gsub('(["\'])', '\\1{}', h)
+   gsub('^\\\\begin\\{alltt\\}\\s*|\\\\end\\{alltt\\}\\s*$', '', h)})
+```
+
+--- .learning
+
+Вы сможете
+========================================================
+
+- Рассказать, как межиндивидуальные различия могут влиять на выявление эффектов других факторов
+- Анализировать модели с повторными измерениями с одним или несколькими факторами
+
+--- &twocol
+
+# Исходные данные для дисперсионного анализа с повторными измерениями
+
+*** left
+
+выглядят так
+
+Субъект | Обработка |
+------ | ------- |
+1 | A |
+1 | B |
+1 | C |
+2 | A |
+2 | B |
+2 | C |
+3 | A |
+3 | B |
+3 | C |
+И т.д. | 
+
+>- Один и тот же объект в нескольких вариантах обработки
+
+*** right
+
+или так
+
+Субъект | Время |
+------ | ------- |
+1 | T1 |
+1 | T2 |
+1 | T3 |
+2 | T1 |
+2 | T2 |
+2 | T3 |
+3 | T1 |
+3 | T2 |
+3 | T3 |
+И т.д. | 
+
+>- Один и тот же объект несколько раз подвергается тому же воздействию
+
+--- &twocol
+
+# Один и тот же объект в нескольких вариантах обработки
+
+*** left
+
+выглядят так
+
+Субъект | Обработка |
+------ | ------- |
+1 | A |
+1 | B |
+1 | C |
+2 | A |
+2 | B |
+2 | C |
+3 | A |
+3 | B |
+3 | C |
+И т.д. | 
+
+*** right
+
+>- 20 улиток
+  - При 3 значениях температуры измерили скорость каждой из 20
+  - Температуры чередуются в случайном порядке
+
+
+--- &twocol
+
+# Один и тот же объект несколько раз подвергается тому же воздействию
+
+*** left
+
+Субъект | Время |
+------ | ------- |
+1 | T1 |
+1 | T2 |
+1 | T3 |
+2 | T1 |
+2 | T2 |
+2 | T3 |
+3 | T1 |
+3 | T2 |
+3 | T3 |
+И т.д. | 
+
+*** right
+
+>- 20 улиток
+  - Одно значение температуры
+  - Скорость каждой улитки замеряли через 1, 3, 6 часов после начала экспозиции
+
+
+--- &twocol
+
+# Мы не можем учитывать только один фактор
+
+*** left
+
+Субъект | **Обработка / Время** |
+------ | ------- |
+1 | A |
+1 | B |
+1 | C |
+2 | A |
+2 | B |
+2 | C |
+3 | A |
+3 | B |
+3 | C |
+И т.д. | 
+
+*** right
+
+Нужно учитывать индивидуальные различия субъектов:
+все реагируют по-разному, есть у каждого свой "базовый" уровень.
+
+--- &twocol
+
+# Как могут выглядеть межиндивидуальные различия?
+
+*** left
+
+- Полностью одинаковые субъекты
+
+```{r echo = FALSE}
+library(ggplot2)
+update_geom_defaults("point", list(shape = 19, size = 4))
+theme_set(theme_bw(base_size = 18) + theme(legend.key = element_blank())) 
+
+# полностью одинаковые субъекты
+ident <- data.frame(expand.grid(Субъект = c("Субъект 1", "Субъект 2"), 
+                                Измерение = c("Измерение 1", "Измерение 2")),
+                                        Значение = c(1, 1, 3, 3))
+ident <- ident[order(ident$Субъект), ]
+pos <- position_dodge(width=0.05, height = 0)
+p1 <- ggplot(ident, aes(x = Измерение, y = Значение, colour = Субъект, shape = Субъект, group = Субъект, ymax = Значение)) + 
+  geom_point(position = pos) +
+  geom_line(position = pos)
+p1 + theme(legend.position = "bottom")
+```
+
+*** right
+
+- Межиндивидуальные различия
+
+```{r echo = FALSE}
+# разные субъекты
+diff <- data.frame(expand.grid(Субъект = c("С.1", "С.2"), 
+            Измерение = c("Изм.1", "Изм.2"),
+            Вариант = letters[1:4]),
+                   Значение = c(1, 3, 3, 5, 
+                                1, 5, 3, 3, 
+                                1, 3, 3, 1,
+                                1, 0, 3, 4))
+diff <- diff[order(diff$Вариант, diff$Субъект), c("Вариант", "Субъект", "Измерение", "Значение")]
+
+p2 <- p1 %+% data.frame(diff) + aes(group = Субъект) + facet_wrap(~Вариант, ) + theme(legend.position = "none", axis.text.x = element_text(angle=45, vjust = 0.5)) 
+p2
+```
+
+--- &twocol
+
+# Где различия измерений замаскированы межиндивидуальными различиями?
+
+*** left
+
+```{r echo = FALSE}
+p2
+```
+
+*** right
+
+```{r echo=FALSE}
+# Построим график средних значений по субъектам, 
+# чтобы оценить межиндивидуальные различия
+library(plyr)
+diff_mean <- ddply(diff, c("Вариант", "Субъект"), summarise,
+                   .mean = mean(Значение))
+ggplot(diff_mean, aes(x = 1, y = .mean, colour = Субъект, shape = Субъект)) + 
+  geom_point() + ylim(c(0, 5)) +  ylab("Среднее значение") + xlab(NULL) +
+  facet_wrap(~ Вариант) + 
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+        legend.position = "bottom")
+```
+
+---
+
+# А теперь немного посчитаем
+
+```{r}
+library(XLConnect)
+# library(car)
+library(ez)
+library(plyr)
+library(reshape2)
+library(gridExtra)
+library(ggplot2)
+theme_set(theme_bw() + theme(legend.key = element_blank()))
+update_geom_defaults("point", list(shape = 19))
+```
+
+--- &twocol
+
+# Пожары в Австралийском буше
+
+*** left
+
+Вот что бывает после большого пожара
+
+<br />
+<br />
+<br />
+
+<img src="http://www.abc.net.au/news/image/29022-16x9-340x191.jpg" width="500" title="after bushfire" alt="after bushfire"/>
+
+*** right
+
+Чтобы больших пожаров не было, устраивают превентивные пожары
+
+<img src="http://www.esa.act.gov.au/wp-content/uploads/actrfs-hazard-reduction-burn-400x300.jpg" width="500" title="fuel-reduction burning" alt="fuel-reduction burning"/>
+
+<div class="footnote">www.esa.act.gov.au; www.abc.net.au</div>
+
+--- &twocol
+
+# Пример: Последствия превентивных пожаров для лягушек
+
+*** left
+
+Меняется ли число песен самцов лягушек в местах, где прошел пожар? (Driscoll Roberts 1997)
+
+```{r eval = FALSE}
+frogs <- readWorksheetFromFile(file="./data/frogs.xlsx", 
+                               sheet = 1)
+head(frogs)
+```
+```{r echo = FALSE}
+frogs <- readWorksheetFromFile(file="./../data/frogs.xlsx", 
+                               sheet = 1)
+head(frogs)
+```
+
+*** right
+
+Зависимая переменная - разница числа лягушачих песен в горевшем и негоревшем месте
+
+- 6 территорий водосбора (на каждой горевшее и не горевшее места) 
+- 3 года наблюдений (1992 - до пожара, 1993 и 1994 - после пожара)
+
+Проверяли $H _0$ о том, что разность числа лягушачих песен между горевшими и негоревшими местами не будет различаться по годам.
+
+<div class="footnote">Данные из Quinn Keough 2002</div>
+
+---
+
+# Альтернативное представление данных - широкий формат
+
+Каждая строка - один экспериментальный объект
+
+```{r}
+# Данные в широком формате получаем из исходных
+wfrogs <- dcast(data=frogs, BLOCK~YEAR, value.var="CALLS")
+wfrogs
+```
+
+<br />
+- Способ лучше представить данные
+- Для проверки условий применимости (сложная симметрия)
+- Могут пригодятся для альтернативных вариантов подсчета дисперсионного анализа с повторными измерениями (`Anova()` из пакета `car`)
+
+---
+
+# Превращаем в факторы год и блок
+
+```{r}
+frogs$YEAR <- factor(frogs$YEAR, labels = c("Y1", "Y2", "Y3"))
+frogs$BLOCK <- factor(frogs$BLOCK)
+str(frogs)
+```
+
+---
+
+# Боксплоты разницы числа лягушачих песен
+
+```{r}
+ggplot(data = frogs, aes(x = YEAR, y = CALLS)) + geom_boxplot()
+```
+
+--- &twocol
+
+# Сбалансированный ли дизайн?
+
+*** left
+
+```{r}
+table(frogs$BLOCK, frogs$YEAR)
+```
+
+*** right
+
+```{r eval = FALSE}
+ezDesign(frogs, x = YEAR, y = BLOCK)
+```
+```{r echo = FALSE}
+ezDesign(frogs, x = YEAR, y = BLOCK) + theme_bw(base_size = 18)
+```
+
+---
+
+# Подбираем линейную модель при помощи ezANOVA
+
+```{r}
+(res <- ezANOVA(frogs, dv=.(CALLS), wid=.(BLOCK), within=.(YEAR), detailed = TRUE))
+```
+
+--- &twocol
+
+# Визуализируем эффект
+
+*** left
+
+Таблица со средними значениями
+
+```{r}
+ezStats(data = frogs, dv=.(CALLS), 
+        wid=.(BLOCK), within=.(YEAR))
+```
+
+*** right
+
+График различий между годами
+
+```{r eval = FALSE}
+ezPlot(data = frogs, dv=.(CALLS), 
+       wid=.(BLOCK), within=.(YEAR), 
+       x = YEAR)
+```
+```{r echo = FALSE, fig.height = 5}
+ezPlot(data = frogs, dv=.(CALLS), 
+       wid=.(BLOCK), within=.(YEAR), 
+       x = YEAR) +
+  theme_bw(base_size = 18)
+```
+
+---
+
+# Степени свободы и F критерий
+
+Если А - фиксированный, B - случайный
+
+Источник<br />изменчивости | $DF$    |  $F$      |
+-------------------------- | ------- |-------- | 
+A - межсубъектный фактор | $$(n _{between} - 1)$$ | $$MS _A / MS _B$$
+Фактор с повторными измерениями (B'(A)) | $$(n _{subj.} - 1)$$ | $$MS _B / MS _e$$
+Остаточная | $$(n _{between} - 1)(n _{within} - 1)$$ |
+
+---
+
+# Что должно быть в таблице результатов ?
+
+>- Столбцы:
+  - df
+  - SS
+  - MS
+  - F
+  - p
+>- Строки:
+  - A - межсубъектный фактор
+  - B'(A) - Фактор с повторными измерениями (не обязательно, если нет взаимодействия A:B'(A))
+  - Остаточная
+
+---
+
+# Что есть что в таблице результатов?
+
+```{r}
+res$ANOVA
+```
+
+Effect      | $DF _n$ | $DF _d$         | $SS _n$        | $SS _d$        | $F$   | $p$   | $p<0.05$ | ges
+----------- | ------- | --------------- | -------------- | -------------- | ----- | ----- | -------- | ---
+(Intercept) |         | $$df _{BLOCK}$$ |                | $$SS _{BLOCK}$$ |       |       |          | 
+YEAR |$$df _{YEAR}$$ | $$df _{e}$$      | $$SS _{YEAR}$$ | $$SS _{e}$$ | $$F = \frac {SS _{YEAR} / df _{YEAR}} {SS _{e} / df _{e}} = MS _{YEAR} / MS _{e}$$ |
+
+<br />
+Влияние блока можем посчитать сами  
+тестировать эффект блока можно только если нет взаимодействия c годом
+
+$F = \frac {SS _{BLOCK} / df _{BLOCK}} {SS _{e} / df _{e}} = MS _{BLOCK} / MS _{e}$
+
+
+*** pnotes
+
+ges - Величина эффекта (Generalized Eta-Squared, см. Bakeman, 2005)
+
+---
+
+# Есть ли данные в пользу взаимодействия BLOCK и YEAR?
+
+```{r fig.width = 14, fig.height = 4}
+mod <- lm(CALLS ~ BLOCK + YEAR, frogs)
+df <- fortify(mod)
+p1 <- ggplot(df, aes(x = .fitted, y = .stdresid)) + geom_point() + geom_hline()
+p2 <- ggplot(frogs, aes(x = BLOCK, y = CALLS, group = YEAR)) + 
+  geom_line(stat = "summary", fun.y = "mean")
+grid.arrange(p1, p2, ncol = 2)
+```
+
+>- Нет:
+  - нет паттернов на графике остатков
+  - не видно взаимодействия на графике (линии более-менее параллельны)
+
+
+--- &twocol
+
+Effect      | $DF _n$ | $DF _d$         | $SS _n$        | $SS _d$        | $F$   | $p$   | $p<0.05$ | ges
+----------- | ------- | --------------- | -------------- | -------------- | ----- | ----- | -------- | ---
+(Intercept) |         | $$df _{BLOCK}$$ |                | $$SS _{BLOCK}$$ |       |       |          | 
+YEAR |$$df _{YEAR}$$ | $$df _{e}$$      | $$SS _{YEAR}$$ | $$SS _{e}$$ | $$F = \frac {SS _{YEAR} / df _{YEAR}} {SS _{e} / df _{e}} = MS _{YEAR} / MS _{e}$$ |
+```{r}
+res$ANOVA
+```
+
+$F = \frac {SS _{BLOCK} / df _{BLOCK}} {SS _{e} / df _{e}} = MS _{BLOCK} / MS _{e}$
+
+*** left
+
+```{r}
+SS_block <- res$ANOVA$SSd[1]
+df_block <- res$ANOVA$DFd[1]
+MS_block <- SS_block/df_block
+SS_e <- res$ANOVA$SSd[2]
+df_e <- res$ANOVA$DFd[2]
+MS_e <- SS_e/df_e
+F_block <- MS_block/MS_e
+```
+
+*** right
+
+```{r}
+p_block <- 1 - pf(F_block, df_block, df_e)
+signif <- p_block <= 0.05
+cat("F =", F_block, ", p =", p_block)
+signif
+```
+
+--- .segue
+
+# Тестируем дополнительные условия применимости для анализа с повторными измерениями
+
+
+---
+
+# Сложная симметрия 
+
+дисперсии значений в тритментах равны и ковариации равны  
+т.е. включает в себя гомогенность дисперсий
+
+```{r}
+var(wfrogs[, -1])
+```
+
+>- нет сложной симметрии
+
+---
+
+# Сферичность
+
+Дисперсии разностей между тритментами должны быть равны
+
+```{r}
+sph <- data.frame(call12 = wfrogs[, 2] - wfrogs[, 3], 
+                  call13 = wfrogs[, 4] - wfrogs[, 2], 
+                  call23 = wfrogs[, 4] - wfrogs[, 3])
+sph # разности между группами
+colwise(var)(sph) # подозрительно, может, и нет сферичности
+```
+
+---
+
+# Что у нас со сферичностью?
+
+Тест Мокли (Mauchly) на сферичность
+
+```{r}
+res$"Mauchly's Test for Sphericity"
+```
+
+Формальный тест говорит, что скорее всего сферичность есть.
+
+Но говорят, что лучше проводить поправку все равно, 
+
+т.к. тест Мокли чувствителен к отклонением от нормальности
+
+---
+
+# Поправки на сферичность
+
+$\epsilon$ - степень отклонения от сферичности (нет сферичности $\epsilon = 1$)
+
+Поправка в значения $df$
+
+$$df _{factor\ adj.} = df _{factor\ unadj.} \hat \epsilon$$
+
+$$df _{e\ adj.} = df _{e\ unadj.} \hat \epsilon$$
+
+<br />
+
+- Поправка Гринхауса-Гейсера (Greenhouse Geisser 1959)
+  - Если $\hat \epsilon < 0.75$ (если больше, то очень консервативный результат)
+
+- Поправка Хюйна-Фельдта (Huynh, Feldt, 1976, Lecoutre, 1991)
+  - Если $\hat \epsilon > 0.75$ (либеральнее, чем Гринхауса-Гейсера)
+
+---
+
+# Какую поправку применить?
+
+```{r}
+res$"Sphericity Corrections"
+```
+
+<br />
+
+>- $\hat \epsilon$ близко к 0.75, поэтому лучше поправку Хюйна-Фельдта
+
+--- .segue
+
+# Более сложный дизайн
+
+--- &twocol
+
+*** left
+
+# Пример: гипоксия у жаб
+
+Реакция на гипоксию у [жабы-аги](http://en.wikipedia.org/wiki/Cane_toad) (Mullens, 1993)
+
+Зависимая переменная - частота буккального дыхания
+
+- Для каждой жабы - 8 уровней концентрации кислорода (0, 5, 10, 15, 20, 30, 40, 50%)  
+ Это фактор с повторными измерениями (= "внутрисубъектный", "within subjects")
+- У разных жаб 2 типа дыхания (буккальное, легочное)  
+ Это обычный фактор (= "межсубъектный", "between subjects")
+
+Проверяли $H _0$ о том, что частота дыхательных движений не будет отличаться в зависимости от типа дыхания и от концентрации кислорода.
+
+<div class = "footnote">Данные из Quinn, Keough, 2002, рис. upload.wikimedia.org</div>
+
+*** right
+
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Canetoadfemale.jpg/320px-Canetoadfemale.jpg?uselang=ru" width="450"><img>
+
+```{r eval = FALSE}
+toads <- read.table("./data/mullens.csv", 
+                    header = TRUE, sep = ",")
+head(toads)
+```
+```{r echo = FALSE}
+toads <- read.table("./../data/mullens.csv", 
+                    header = TRUE, sep = ",")
+head(toads)
+```
+
+---
+
+# Переименовываем переменные и делаем факторы факторами
+
+```{r}
+names(toads)[2:3] <- c("BRTH", "O2")
+toads$O2 <- factor(toads$O2)
+toads$TOAD <- factor(toads$TOAD)
+toads$BRTH <- factor(toads$BRTH)
+str(toads)
+```
+
+---
+
+# Данные в широком формате получаем из исходных
+
+```{r}
+wtoads <- dcast(data=toads, TOAD + BRTH ~ O2, value.var="FREQBUC")
+wtoads
+# То же самое для квадратных корней из частоты буккального дыхания
+wstoads <- dcast(data=toads, TOAD + BRTH ~ O2, value.var="SFREQBUC")
+wstoads
+```
+
+---
+
+# Что лучше использовать - частоту буккального дыхания или корень из нее?
+
+```{r fig.height = 5, fig.width =14}
+p <- ggplot(data = toads, aes(x = BRTH, y = FREQBUC)) + geom_boxplot()
+grid.arrange(p, p %+% aes(y = SFREQBUC), ncol = 2)
+```
+Частота дыхательных движений при разном типе дыхания
+
+--- 
+
+# Что лучше использовать - частоту буккального дыхания или корень из нее?
+
+```{r fig.height = 4, fig.width = 14}
+grid.arrange(p %+% aes(x = O2, y = FREQBUC),
+             p %+% aes(x = O2, y = SFREQBUC), 
+             p %+% aes(x = O2, y = FREQBUC, fill = BRTH) + 
+               theme(legend.position = "bottom"),
+             p %+% aes(x = O2, y = SFREQBUC, fill = BRTH) + 
+               theme(legend.position = "bottom"), 
+             ncol = 4)
+```
+Частота дыхательных движений в зависимости от концентрации кислорода. Слева - без учета типа дыхания, справа - с учетом типа дыхания
+
+--- &twocol
+
+# Сбалансированный ли здесь дизайн?
+
+*** left
+
+```{r}
+table(toads$BRTH, toads$O2)
+table(toads$TOAD, toads$O2)
+```
+
+*** right
+
+```{r eval = FALSE}
+ezDesign(toads, x = TOAD, y = O2, row = BRTH)
+# ezPrecis(toads)
+```
+```{r echo = FALSE, fig.height = 5}
+ezDesign(toads, x = TOAD, y = O2, row = BRTH) +
+  theme_bw(base_size = 18)
+```
+
+>- Несбалансированный дизайн - нужно выбрать тип сумм квадратов (например, III)
+
+---
+
+# Дисперсионный анализ 
+
+```{r}
+rest <- ezANOVA(toads, dv=.(SFREQBUC), wid=.(TOAD), within=.(O2), 
+                between=.(BRTH), detailed = TRUE, type=3)
+rest
+```
+
+---
+
+# Статистика по эффектам
+
+```{r}
+ezStats(toads, dv=.(SFREQBUC), wid=.(TOAD), within=.(O2), 
+        between=.(BRTH), type = 3)
+```
+
+---
+
+# График эффектов ("interaction plot")
+
+```{r eval = FALSE}
+ezPlot(toads, dv=.(SFREQBUC), wid=.(TOAD), within=.(O2), 
+       between=.(BRTH), type = 3, 
+       x = O2, split = BRTH) + 
+  theme(legend.position = c(0.85, 0.80), legend.key = element_blank())
+```
+```{r echo = FALSE, warning = FALSE, fig.height = 6}
+ezPlot(toads, dv=.(SFREQBUC), wid=.(TOAD), within=.(O2), 
+       between=.(BRTH), type = 3, 
+       x = O2, split = BRTH) + 
+  theme_bw(base_size = 19) +
+  theme(legend.position = c(0.85, 0.80), legend.key = element_blank())
+```
+
+---
+
+# Проверяем сложную симметрию
+
+```{r}
+var(wstoads[, -c(1, 2)])
+```
+
+>- Дисперсии ок, ковариации - не очень
+
+---
+
+# Проверяем сферичность при помощи теста Мокли
+
+```{r}
+rest$"Mauchly's Test for Sphericity"
+```
+>- Вот здесь точно все несферично - нужно применять поправку Гринхауса-Гейсера или Хюйна-Фельдта
+
+---
+
+# Какую поправку применить?
+
+```{r}
+rest$'Sphericity Corrections'
+```
+
+>- $\hat \epsilon _{GG} < 0.75$ - можно применять поправку Гринхауса-Гейсера
+
+---
+
+# Степени свободы и F критерий
+
+Если А, С - фиксированные, B - случайный
+
+Источник<br />изменчивости | $DF$    |  $F$      |
+-------------------------- | ------- |-------- | 
+Межсубъектные факторы: |
+A - межсубъектный фактор | $$(n _{between} - 1)$$ | $$MS _A / MS _{e\ b}$$
+Остаточная (это B'(A) - фактор с повторными измерениями) | $$df _{e\ b} = n _{between} (n _{subj} - 1)$$ | 
+Внутрисубъектные факторы: |
+C | $$(n _{within} - 1)$$ | $$MS _C /MS _{e\ w}$$
+A:C | $$(n _{between} - 1)(n _{within} - 1)$$ | $$MS _{A:C} / MS _{e\ w}$$
+Остаточная (это С x B'(A)) | $$df _{e\ w} = n _{between}(n _{subj} - 1)(n _{within} - 1)$$ |
+
+---
+
+# Что должно быть в таблице результатов ?
+
+>- Столбцы:
+  - df
+  - SS
+  - MS
+  - F
+  - p
+
+>- Строки:
+  - A - межсубъектный фактор, 
+  - остаточная изменчивость для межсубъектного фактора (B'(A)), 
+  - C, С:А - внутрисубъектный фактор и взаимодействие, 
+  - остаточная изменчивость для внутрисубъектного фактора (С*B'(A))
+
+---
+
+# Что есть что в результатах?
+
+```{r}
+rest$ANOVA
+```
+
+Effect      | $DF _n$ | $DF _d$         | $SS _n$        | $SS _d$        | $F$   | $p$   | $p<0.05$ | ges
+----------- | ------- | --------------- | -------------- | -------------- | ----- | ----- | -------- | ---
+(Intercept) |
+BRTH |$$df _{BRTH}$$    | $$df _{e\ b}$$ | $$SS _{BRTH}$$    | $$SS _{e\ b}$$ | $$F = \frac {SS _{BRTH} / df _{BRTH}} {SS _{e\ b} / df _{e\ b}} = MS _{BRTH} / MS _{e\ b}$$ |
+O2 |$$df _{O2}$$      | $$df _{e\ w}$$ | $$SS _{O2}$$      | $$SS _{e\ w}$$ | $$F = \frac {SS _{O2} / df _{O2}} {SS _{e\ w} / df _{e\ w}} = MS _{O2} / MS _{e\ w}$$ |
+BRTH:O2 |$$df _{BRTH:O2}$$ | $$df _{e\ w}$$ | $$SS _{BRTH:O2}$$ | $$SS _{e\ w}$$ | $$F = \frac {SS _{BRTH:O2} / df _{BRTH:O2}} {SS _{e\ w} / df _{e\ w}} = MS _{BRTH:O2} / MS _{e\ w}$$ |
+
+--- &twocol
+
+# Недостающее можем посчитать сами
+
+Effect      | $DF _n$ | $DF _d$         | $SS _n$        | $SS _d$        | $F$   | $p$   | $p<0.05$ | ges
+----------- | ------- | --------------- | -------------- | -------------- | ----- | ----- | -------- | ---
+(Intercept) |
+BRTH |$$df _{BRTH}$$    | $$df _{e\ b}$$ | $$SS _{BRTH}$$    | $$SS _{e\ b}$$ | $$F = \frac {SS _{BRTH} / df _{BRTH}} {SS _{e\ b} / df _{e\ b}} = MS _{BRTH} / MS _{e\ b}$$ |
+O2 |$$df _{O2}$$      | $$df _{e\ w}$$ | $$SS _{O2}$$      | $$SS _{e\ w}$$ | $$F = \frac {SS _{O2} / df _{O2}} {SS _{e\ w} / df _{e\ w}} = MS _{O2} / MS _{e\ w}$$ |
+BRTH:O2 |$$df _{BRTH:O2}$$ | $$df _{e\ w}$$ | $$SS _{BRTH:O2}$$ | $$SS _{e\ w}$$ | $$F = \frac {SS _{BRTH:O2} / df _{BRTH:O2}} {SS _{e\ w} / df _{e\ w}} = MS _{BRTH:O2} / MS _{e\ w}$$ |
+
+<br />
+
+$MS _{e\ b} = \frac {SS _{e\ b}}{df _{e\ b}}$
+
+$MS _{e\ w} = \frac {SS _{e\ w}}{df _{e\ w}}$
+
+---
+
+Take home messages
+========================================================
+
+>- Межиндивидуальная изменчивость - различие средних значений между субъектами
+- Межиндивидуальная изменчивость может маскировать эффекты других факторов (направление изменения значений между измерениями у разных субъектов)
+
+
+---
+
+Дополнительные ресурсы
+========================================================
+
+- Quinn, Keough, 2002
+- Logan, 2010
+- Sokal, Rohlf, 1995 
+- Zar, 2010
